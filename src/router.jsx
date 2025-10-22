@@ -8,7 +8,8 @@ import Register from "./pages/Register";
 import AdminPanel from "./pages/admin/AdminPannel";
 import UserHome from "./pages/user/UserHome";
 import SellerHome from "./pages/seller/SellerHome";
-
+import OrderHistory from "./pages/user/OrderHistory";
+import OrderDetails from './pages/user/OrderDetails';
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,14 @@ const router = createBrowserRouter([
       { path: "adminPanel", element: <AdminPanel /> },
       { path: "userHome", element: <UserHome /> },
       { path: "sellerHome", element: <SellerHome /> },
+      { 
+        path: "orders", 
+        element: <OrderHistory /> 
+      },
+      {
+        path: "orders/:id",
+        element: <OrderDetails />
+      }
     ],
   },
 ]);

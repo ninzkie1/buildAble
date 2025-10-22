@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
@@ -8,7 +7,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check localStorage for existing user
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -19,16 +17,16 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("token", userData.token); // ✅ Save token separately
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
-  if (loading) {
-    return null; // or a loading spinner
-  }
+  if (loading) return null;
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
