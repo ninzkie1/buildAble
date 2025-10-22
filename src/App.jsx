@@ -1,14 +1,15 @@
-import { Outlet } from "react-router-dom";
-import Navbar from "./components/navbar";
+import NavbarContainer from './components/NavbarContainer';
+import { Outlet } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
-    <>
-      <Navbar />
+    <AuthProvider>
+      <NavbarContainer />
       <main style={{ padding: "2rem" }}>
-        <Outlet />
+        <Outlet /> {/* Nested pages render here */}
       </main>
-    </>
+    </AuthProvider>
   );
 }
 
