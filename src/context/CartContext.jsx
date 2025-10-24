@@ -8,14 +8,13 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(() => {
-    // Load cart from localStorage if it exists
-    const savedCart = localStorage.getItem("cart");
+    const savedCart = localStorage.getItem("guestCart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
+    localStorage.setItem("guestCart", JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (product) => {

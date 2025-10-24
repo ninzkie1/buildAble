@@ -1,23 +1,28 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc'; // Google icon
+import { FcGoogle } from 'react-icons/fc';
 import logo from '/logo.png';
 import { AuthContext } from '../context/AuthContext';
+import { useCart } from '../context/CartContext'; // Update this import
 
 export default function LoginPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  const { clearCart } = useCart(); // Get clearCart from context
+  const { message } = location.state || {};
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) navigate('/dashboard');
+    if (storedUser) navigate('/orders');
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -37,26 +42,23 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Login failed');
 
-      // Use context login instead of direct localStorage
-      login(data);
-
-      // Redirect based on user role
-      switch (data.role) {
-        case 'admin':
-          navigate('/adminPanel');
-          break;
-        case 'seller':
-          navigate('/sellerHome');
-          break;
-        case 'user':
-          navigate('/userHome');
-          break;
-        default:
-          navigate('/userHome');
-      }
+      handleLoginSuccess(data);
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleLoginSuccess = async (userData) => {
+    login(userData);
+
+    // Check for pending checkout
+    const pendingCheckout = localStorage.getItem("pendingCheckout");
+    if (pendingCheckout) {
+      localStorage.removeItem("pendingCheckout");
+    }
+
+    // Redirect back to cart or home
+    navigate(location.state?.from || '/');
   };
 
   const handleGoogleLogin = () => {
@@ -79,6 +81,12 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        {message && (
+          <div className="mb-4 p-4 bg-blue-50 text-blue-700 rounded-lg">
+            {message}
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 my-4">

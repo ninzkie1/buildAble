@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/helpers';
 
 export default function OrderDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,19 +12,45 @@ export default function OrderDetails() {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+        console.log('Fetching order details for ID:', id);
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch order details');
+        if (!id || id === 'undefined') {
+          throw new Error('Invalid order ID');
         }
 
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
         const data = await response.json();
-        setOrder(data);
+        console.log('API Response:', data);
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch order details');
+        }
+
+        if (!data.success || !data.order) {
+          throw new Error(data.message || 'Order data is missing from response');
+        }
+
+        // Additional validation of order structure
+        const orderData = data.order;
+        if (!orderData._id || !orderData.items || !Array.isArray(orderData.items)) {
+          throw new Error('Invalid order data structure');
+        }
+
+        setOrder(orderData);
       } catch (err) {
+        console.error('Error fetching order:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -31,7 +58,7 @@ export default function OrderDetails() {
     };
 
     fetchOrderDetails();
-  }, [id]);
+  }, [id, navigate]);
 
   const getOptimizedImageUrl = (imageUrl, width = 400) => {
     if (!imageUrl) return "/placeholder.jpg";
@@ -42,22 +69,33 @@ export default function OrderDetails() {
     return imageUrl;
   };
 
+  // Show more detailed loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+          <p className="text-gray-600">Loading order details...</p>
+        </div>
       </div>
     );
   }
 
+  // Show more informative error state
   if (error || !order) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-red-50 border-l-4 border-red-500 p-4">
-          <p className="text-red-700">{error || 'Order not found'}</p>
-          <Link to="/orders" className="text-red-600 hover:underline mt-2 inline-block">
-            ← Back to Orders
-          </Link>
+          <div className="flex flex-col gap-2">
+            <p className="text-red-700 font-medium">Error loading order</p>
+            <p className="text-red-600">{error || 'Order could not be found'}</p>
+            <Link 
+              to="/orders" 
+              className="text-red-600 hover:underline mt-2 inline-flex items-center gap-2"
+            >
+              ← Back to Orders
+            </Link>
+          </div>
         </div>
       </div>
     );

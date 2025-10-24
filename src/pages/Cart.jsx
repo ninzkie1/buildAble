@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -17,58 +18,54 @@ export default function Cart() {
 
   const handleCheckout = async () => {
     try {
-      setLoading(true);
-      setError("");
-
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        // Save current cart state
+        localStorage.setItem("pendingCheckout", JSON.stringify(cart));
+
+        // Redirect to login with return path
+        navigate("/login", {
+          state: {
+            from: "/cart",
+            message: "Please login to complete your purchase",
+          },
+        });
         return;
       }
 
-      const orderData = {
-        items: cart.map((item) => ({
-          product: item._id,
-          quantity: item.quantity,
-        })),
-        totalAmount: totalAmount,
-      };
+      setLoading(true);
+      setError("");
 
-      console.log('Sending order data:', orderData); // Debug log
-
-      const response = await fetch("http://localhost:5000/api/orders", {
+      // 
+      //CHECKOUT AUTHENTICATED USER
+      //
+      const response = await fetch("http://localhost:5000/api/orders/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+          })),
+        }),
       });
 
-      // Debug log for response
-      const responseText = await response.text();
-      console.log('Response:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (err) {
-        console.error('Failed to parse response:', err);
-        throw new Error('Invalid server response');
-      }
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to create order");
+        throw new Error(data.message || "Checkout failed");
       }
 
       clearCart();
-      navigate(`/orders/${data._id}`, {
-        state: { message: "Order placed successfully!" }
-      });
-
+      toast.success("Order placed successfully! 🎉");
+      navigate(`/orders/${data.orderId}`);
     } catch (err) {
-      console.error('Checkout error:', err);
+      console.error("Checkout error:", err);
       setError(err.message || "Failed to process checkout");
+      toast.error(err.message || "Failed to process checkout");
     } finally {
       setLoading(false);
     }
@@ -166,35 +163,14 @@ export default function Cart() {
             </button>
             <button
               onClick={handleCheckout}
-              disabled={loading || cart.length === 0}
               className={`px-5 py-2 rounded-lg text-white transition ${
-                loading || cart.length === 0
+                loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-[#B84937] hover:bg-[#9E3C2D]"
               }`}
+              disabled={loading}
             >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Processing...
-                </span>
-              ) : (
-                "Checkout"
-              )}
+              {loading ? "Processing..." : "Proceed to Checkout"}
             </button>
           </div>
         </div>
