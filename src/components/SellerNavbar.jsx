@@ -83,7 +83,7 @@ function SellerNavbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
-          <LinkItem to="/seller" icon={LayoutDashboard} label="Dashboard" />
+          <LinkItem to="/sellerHome" icon={LayoutDashboard} label="Dashboard" />
           <LinkItem to="/seller/products" icon={Package} label="Products" />
           <LinkItem to="/seller/orders" icon={ClipboardList} label="Orders" />
           <LinkItem to="/seller/customers" icon={Users} label="Customers" />
@@ -118,7 +118,7 @@ function SellerNavbar() {
         }}
       >
         <div className="flex flex-col items-center py-2 md:py-3 space-y-1 md:space-y-2">
-          <LinkItem to="/seller" icon={LayoutDashboard} label="Dashboard" />
+          <LinkItem to="/sellerHome" icon={LayoutDashboard} label="Dashboard" />
           <LinkItem to="/seller/products" icon={Package} label="Products" />
           <LinkItem to="/seller/orders" icon={ClipboardList} label="Orders" />
           <LinkItem to="/seller/customers" icon={Users} label="Customers" />

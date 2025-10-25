@@ -7,10 +7,12 @@ import LoginPage from "./pages/LoginPage";
 import Register from "./pages/Register";
 import AdminPanel from "./pages/admin/AdminPannel";
 import UserHome from "./pages/user/UserHome";
-import SellerHome from "./pages/seller/SellerHome";
+import SellerHome from "./pages/seller/SellerDashboard";
 import OrderHistory from "./pages/user/OrderHistory";
 import OrderDetails from './pages/user/OrderDetails';
 import ProductDetails from './pages/ProductDetails';
+import SellerProducts from "./pages/seller/sellerProducts";
+import ProductForm from './pages/seller/ProductForm';
 
 const router = createBrowserRouter([
   {
@@ -36,6 +38,18 @@ const router = createBrowserRouter([
       {
         path: "/product/:id",
         element: <ProductDetails />
+      },
+      {
+        path: "/seller/products",
+        element: <SellerProducts/>
+      },
+      {
+        path: "/seller/products/new",
+        element: <ProductForm />
+      },
+      {
+        path: "/seller/products/edit/:id",
+        element: <ProductForm />
       }
     ],
   },

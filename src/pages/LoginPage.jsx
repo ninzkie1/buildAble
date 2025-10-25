@@ -57,9 +57,49 @@ export default function LoginPage() {
       localStorage.removeItem("pendingCheckout");
     }
 
-    // Redirect back to cart or home
-    navigate(location.state?.from || '/');
+    // Role-based redirect
+    if (userData.role) {
+      switch (userData.role) {
+        case 'seller':
+          navigate('/sellerHome');
+          break;
+        case 'user':
+          navigate('/userHome');
+          break;
+        case 'admin':
+          navigate('/adminPanel');
+          break;
+        default:
+          navigate('/');
+      }
+    } else {
+      console.error('No role found in user data:', userData);
+      navigate('/'); // Fallback to home page
+    }
   };
+  
+  // Update the useEffect for role check
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      if (user.role) {
+        switch (user.role) {
+          case 'seller':
+            navigate('/sellerHome');
+            break;
+          case 'user':
+            navigate('/userHome');
+            break;
+          case 'admin':
+            navigate('/adminPanel');
+            break;
+          default:
+            navigate('/');
+        }
+      }
+    }
+  }, [navigate]);
 
   const handleGoogleLogin = () => {
     // Redirect to your backend Google OAuth route
