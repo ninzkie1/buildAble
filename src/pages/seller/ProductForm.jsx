@@ -91,11 +91,22 @@ export default function ProductForm() {
       const token = localStorage.getItem('token');
       const formPayload = new FormData();
       
-      Object.keys(formData).forEach(key => {
-        if (formData[key] !== null) {
-          formPayload.append(key, formData[key]);
-        }
-      });
+      // Add basic form fields
+      formPayload.append('name', formData.name);
+      formPayload.append('description', formData.description);
+      formPayload.append('price', formData.price);
+      formPayload.append('stock', formData.stock);
+      formPayload.append('category', formData.category);
+
+      // Handle image file for new product or image update
+      if (formData.image) {
+        formPayload.append('image', formData.image);
+      } else if (!id) {
+        // Only require image for new products
+        toast.error('Please select an image for the product');
+        setLoading(false);
+        return;
+      }
 
       const url = id 
         ? `http://localhost:5000/api/products/${id}`
@@ -103,24 +114,52 @@ export default function ProductForm() {
       
       const method = id ? 'PUT' : 'POST';
 
+      // Show loading toast
+      const loadingToastId = toast.loading(
+        id ? 'Updating product...' : 'Creating product...'
+      );
+
+      // For updates without new image, use JSON
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Only send FormData if there's an image
+      const body = formData.image ? formPayload : JSON.stringify({
+        name: formData.name,
+        description: formData.description,
+        price: formData.price,
+        stock: formData.stock,
+        category: formData.category
+      });
+
+      // Add Content-Type header for JSON requests
+      if (!formData.image && id) {
+        headers['Content-Type'] = 'application/json';
+      }
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formPayload
+        headers,
+        body
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(data.message || 'Operation failed');
       }
 
-      toast.success(id ? 'Product updated successfully!' : 'Product created successfully!');
+      // Update loading toast to success
+      toast.success(
+        id ? 'Product updated successfully!' : 'Product created successfully!',
+        { id: loadingToastId }
+      );
+      
       navigate('/seller/products');
     } catch (err) {
-      toast.error(err.message);
+      console.error('Form submission error:', err);
+      toast.error(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
