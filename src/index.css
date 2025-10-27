@@ -33,3 +33,156 @@
   opacity: 0;
   transition: all 300ms ease-in;
 }
+
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% / 2));
+  }
+}
+
+.animate-slide {
+  animation: slideLeft 30s linear infinite;
+}
+
+.animate-slide:hover {
+  animation-play-state: paused;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50%));
+  }
+}
+
+.product-slider {
+  display: flex;
+  width: fit-content;
+  animation: slide 30s linear infinite;
+  cursor: grab;
+}
+
+.product-slider:hover {
+  animation-play-state: paused;
+}
+
+.product-slider.dragging {
+  animation-play-state: paused;
+  cursor: grabbing;
+}
+
+.product-wrapper {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+/* Add these new styles */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.full-width-section {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+.content-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+@layer components {
+  .category-button {
+    @apply px-4 py-2 rounded-full text-sm transition-colors;
+  }
+  
+  .category-button-active {
+    @apply bg-[#B84937] text-white;
+  }
+  
+  .category-button-inactive {
+    @apply bg-gray-100 text-gray-600 hover:bg-gray-200;
+  }
+}
+
+/* Hide scrollbar but maintain functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure full width layout */
+#root {
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for the products grid */
+.products-grid {
+  scrollbar-width: thin;
+  scrollbar-color: #B84937 #f3f4f6;
+  max-height: calc(2 * (300px + 1rem)); /* Height for 2 rows of products */
+  overflow-y: auto;
+}
+
+.products-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.products-grid::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.products-grid::-webkit-scrollbar-thumb {
+  background-color: #B84937;
+  border-radius: 3px;
+}
+
+/* Pagination styles */
+.pagination-container {
+  @apply mt-6 flex justify-center items-center gap-2;
+}
+
+.pagination-button {
+  @apply p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+}
+
+.pagination-number {
+  @apply px-4 py-2 rounded-lg transition-colors;
+}
+
+.pagination-number-active {
+  @apply bg-[#B84937] text-white;
+}
+
+.pagination-number-inactive {
+  @apply border border-gray-300 hover:bg-gray-50;
+}
+

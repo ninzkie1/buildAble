@@ -80,7 +80,7 @@ function UserNavbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           <LinkItem to="/" icon={Home} label="Home" />
-          <LinkItem to="/shop" icon={Store} label="Shop" />
+          <LinkItem to="/userHome" icon={Store} label="Shop" />
           <Link
             to="/cart"
             className="relative flex items-center gap-2 text-white hover:text-yellow-200 transition px-3 py-1 md:py-2 rounded-md hover:bg-[#a03d2e]"
@@ -125,7 +125,7 @@ function UserNavbar() {
       >
         <div className="flex flex-col items-center py-2 md:py-3 space-y-1 md:space-y-2">
           <LinkItem to="/" icon={Home} label="Home" />
-          <LinkItem to="/shop" icon={Store} label="Shop" />
+          <LinkItem to="/userHome" icon={Store} label="Shop" />
           <LinkItem to="/cart" icon={ShoppingCart} label="Cart" />
           <LinkItem to="/wishlist" icon={Heart} label="Wishlist" />
           <LinkItem to="/profile" icon={User} label={user?.name || "Profile"} />

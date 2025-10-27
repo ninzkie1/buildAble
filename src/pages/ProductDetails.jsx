@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext'; // Update this import
 import toast from 'react-hot-toast';
 
@@ -130,7 +130,22 @@ export default function ProductDetails() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{product.seller?.name || 'Unknown Seller'}</p>
-                    <p className="text-sm text-gray-500">{product.seller?.email}</p>
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, index) => (
+                        <Star
+                          key={index}
+                          size={16}
+                          className={`${
+                            index < (product.seller?.rating || 0)
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                      <span className="text-sm text-gray-600 ml-1">
+                        ({product.seller?.rating || 0}/5)
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
