@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import {
   ShoppingCart,
   Home,
-  Store,
   LogIn,
   Menu as MenuIcon,
   X as XIcon,
+  Info,  // Add this import
 } from "lucide-react";
 import logo from "/logo.png";
 import { useCart } from "../context/CartContext";
@@ -78,9 +78,31 @@ function Navbar() {
     </Link>
   );
 
+  // Update the About link in your Navbar
+  const AboutLink = () => (
+    <Link
+      to="/#about"
+      onClick={(e) => {
+        e.preventDefault();
+        if (window.location.pathname === "/") {
+          const aboutSection = document.querySelector(
+            ".full-width-section:nth-of-type(4)"
+          );
+          aboutSection?.scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.location.href = "/#about";
+        }
+      }}
+      className="flex items-center gap-2 text-white hover:text-orange-200 transition px-3 py-2 rounded-md hover:bg-orange-700/50 md:hover:bg-transparent"
+    >
+      <Info size={18} />
+      <span>About</span>
+    </Link>
+  );
+
   return (
     <nav
-      className="text-white sticky top-0 left-0 w-full z-50 shadow-md backdrop-blur-sm transition-all duration-300"
+      className="text-white sticky top-0 left-0 w-full h-50 z-50 shadow-md backdrop-blur-sm transition-all duration-300"
       style={{
         background: "linear-gradient(to right, #B84937, #7A2B22)",
       }}
@@ -95,8 +117,9 @@ function Navbar() {
         {/* Right: Desktop Links */}
         <div className="hidden md:flex items-center gap-10">
           <LinkItem to="/" icon={Home} label="Home" />
-          <LinkItem to="/shop" icon={Store} label="Shop" />
+         
           <CartLink />
+          <AboutLink />
           <Link
             to="/login"
             className="flex items-center gap-2 text-white hover:text-blue-200 transition"
@@ -133,8 +156,8 @@ function Navbar() {
       >
         <div className="flex flex-col items-center py-3 space-y-2">
           <LinkItem to="/" icon={Home} label="Home" />
-          <LinkItem to="/shop" icon={Store} label="Shop" />
           <CartLink />
+          <AboutLink />  {/* Add this line */}
           <LinkItem to="/login" icon={LogIn} label="Login" />
         </div>
       </div>

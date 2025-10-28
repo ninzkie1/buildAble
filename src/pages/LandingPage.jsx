@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "../context/CartContext";
 import { 
   ChevronLeft, 
@@ -21,6 +21,7 @@ export const LandingPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart } = useCart();
+  const aboutRef = useRef(null);
 
   const getOptimizedImageUrl = (imageUrl, width = 400) => {
     if (!imageUrl) return "/placeholder.jpg";
@@ -66,6 +67,10 @@ export const LandingPage = () => {
       console.error('Error adding to cart:', error);
       toast.error('Failed to add to cart');
     }
+  };
+
+  const scrollToAbout = () => {
+    aboutRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (loading) {
@@ -159,7 +164,7 @@ export const LandingPage = () => {
       </div>
 
       {/* About Section - Full Width */}
-      <div className="full-width-section py-12">
+      <div ref={aboutRef} className="full-width-section py-12">
         <div className="content-wrapper">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="flex flex-col md:flex-row">

@@ -13,6 +13,7 @@ import OrderDetails from './pages/user/OrderDetails';
 import ProductDetails from './pages/ProductDetails';
 import SellerProducts from "./pages/seller/sellerProducts";
 import ProductForm from './pages/seller/ProductForm';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const router = createBrowserRouter([
   {
@@ -50,7 +51,11 @@ const router = createBrowserRouter([
       {
         path: "/seller/products/edit/:id",
         element: <ProductForm />
-      }
+      },
+      {
+        path: "/payment-success",
+        element: <PaymentSuccess />,
+      },
     ],
   },
 ]);

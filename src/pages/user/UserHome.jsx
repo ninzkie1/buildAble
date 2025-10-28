@@ -231,89 +231,95 @@ export const UserHome = () => {
         </div>
       </div>
 
-      {/* Main Content - Updated for full width */}
+      {/* Main Content */}
       <div className="w-full px-4 py-8 max-w-[2000px] mx-auto">
-        {/* Recommendations Section */}
-        {selectedCategory === 'All' && !searchQuery && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Recommended for You</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
-              {products
-                .filter(product => product.rating >= 4)
-                .slice(0, 4)
-                .map(product => (
-                  <div key={product._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden h-full flex flex-col">
-                    <div className="relative h-48 sm:h-56 bg-gray-100">
-                      <Link to={`/product/${product._id}`}>
-                        <img
-                          src={getOptimizedImageUrl(product.imageUrl)}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                          loading="lazy"
-                        />
-                      </Link>
-                      <div className="absolute top-2 right-2 flex justify-end w-full px-2">
-                        {product.stock <= 0 ? (
-                            <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
-                            Out of Stock
-                            </span>
-                        ) : product.stock <= 5 ? (
-                            <span className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
-                            Low Stock: {product.stock}
-                            </span>
-                        ) : (
-                            <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
-                            In Stock: {product.stock}
-                            </span>
-                        )}
-                        </div>
-
-                    </div>
-
-                    <div className="p-4 flex flex-col flex-grow">
-                      <Link to={`/product/${product._id}`} className="flex-grow">
-                        <h3 className="text-lg font-medium text-gray-900 hover:text-[#B84937] transition line-clamp-2">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <p className="mt-1 text-gray-600">${product.price.toFixed(2)}</p>
-                      {/* Add category display */}
-                      <div className="mt-1 mb-2">
-                        <span className="inline-block px-2 py-1 bg-gray-100 text-sm text-gray-600 rounded-full">
-                          {product.category}
-                        </span>
+        {/* Recommendations Section - Always visible */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6">Recommended for You</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6">
+            {products
+              .filter(product => product.rating >= 4)
+              .slice(0, 5)
+              .map(product => (
+                <div key={product._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition overflow-hidden h-full flex flex-col">
+                  <div className="relative h-48 sm:h-56 bg-gray-100">
+                    <Link to={`/product/${product._id}`}>
+                      <img
+                        src={getOptimizedImageUrl(product.imageUrl)}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        loading="lazy"
+                      />
+                    </Link>
+                    <div className="absolute top-2 right-2 flex justify-end w-full px-2">
+                      {product.stock <= 0 ? (
+                          <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                          Out of Stock
+                          </span>
+                      ) : product.stock <= 5 ? (
+                          <span className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                          Low Stock: {product.stock}
+                          </span>
+                      ) : (
+                          <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                          In Stock: {product.stock}
+                          </span>
+                      )}
                       </div>
-                      <div className="mt-2 flex items-center gap-1">
-                        {[...Array(5)].map((_, index) => (
-                          <Star
-                            key={index}
-                            size={16}
-                            className={index < (product.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-                          />
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => handleAddToCart(product)}
-                        disabled={product.stock <= 0}
-                        className={`mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition ${
-                          product.stock <= 0
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-[#B84937] text-white hover:bg-[#9E3C2D]"
-                        }`}
-                      >
-                        <ShoppingCart size={18} />
-                        {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
-                      </button>
-                    </div>
+
                   </div>
-                ))}
+
+                  <div className="p-4 flex flex-col flex-grow">
+                    <Link to={`/product/${product._id}`} className="flex-grow">
+                      <h3 className="text-lg font-medium text-gray-900 hover:text-[#B84937] transition line-clamp-2">
+                        {product.name}
+                      </h3>
+                    </Link>
+                    <p className="mt-1 text-gray-600">${product.price.toFixed(2)}</p>
+                    {/* Add category display */}
+                    <div className="mt-1 mb-2">
+                      <span className="inline-block px-2 py-1 bg-gray-100 text-sm text-gray-600 rounded-full">
+                        {product.category}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center gap-1">
+                      {[...Array(5)].map((_, index) => (
+                        <Star
+                          key={index}
+                          size={16}
+                          className={index < (product.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stock <= 0}
+                      className={`mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-lg font-medium transition ${
+                        product.stock <= 0
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-[#B84937] text-white hover:bg-[#9E3C2D]"
+                      }`}
+                    >
+                      <ShoppingCart size={18} />
+                      {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        {/* All Products Section */}
+        <div>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">All Products</h2>
+            <div className="text-sm text-gray-600">
+              Showing {currentProducts.length} of {filteredProducts.length} products
             </div>
           </div>
-        )}
 
-        {/* Products Grid with fixed height */}
-        <div className="mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 max-h-[900px] overflow-y-auto">
+          {/* Products Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {loading ? (
               <div className="col-span-full flex justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#B84937]"></div>

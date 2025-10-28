@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useCart } from "../context/CartContext";
+import { AuthContext } from "../context/AuthContext";
 import { Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -18,53 +20,76 @@ export default function Cart() {
 
   const handleCheckout = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        // Save current cart state
-        localStorage.setItem("pendingCheckout", JSON.stringify(cart));
-
-        // Redirect to login with return path
-        navigate("/login", {
-          state: {
-            from: "/cart",
-            message: "Please login to complete your purchase",
-          },
-        });
+      if (!user || !user.token) {
+        toast.error("Please login to checkout");
+        navigate("/login");
         return;
       }
 
       setLoading(true);
       setError("");
 
-      // 
-      //CHECKOUT AUTHENTICATED USER
-      //
-      const response = await fetch("http://localhost:5000/api/orders/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          items: cart.map((item) => ({
-            product: item._id,
-            quantity: item.quantity,
-          })),
-        }),
-      });
+      // Create order with required fields
+      const orderResponse = await fetch(
+        "http://localhost:5000/api/orders/checkout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            items: cart.map((item) => ({
+              product: item._id,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+            // totalAmount and user will be handled by backend
+          }),
+        }
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Checkout failed");
+      const orderData = await orderResponse.json();
+      if (!orderResponse.ok) {
+        throw new Error(orderData.message || "Failed to create order");
       }
 
-      clearCart();
-      toast.success("Order placed successfully! 🎉");
-      navigate(`/orders/${data.orderId}`);
+      // Create PayMongo payment session
+      const paymentResponse = await fetch(
+        "http://localhost:5000/api/payments/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            orderId: orderData.order._id,
+            amount: totalAmount,
+            email: user.email,
+            successUrl: `${window.location.origin}/payment-success?orderId=${orderData.order._id}`,
+            cancelUrl: `${window.location.origin}/payment-failed?orderId=${orderData.order._id}`,
+          }),
+        }
+      );
+
+      const paymentData = await paymentResponse.json();
+      if (!paymentResponse.ok) {
+        throw new Error(paymentData.message || "Payment initialization failed");
+      }
+
+      // Store order ID in localStorage for verification after payment
+      localStorage.setItem("pendingOrderId", orderData.order._id);
+
+      // Redirect to PayMongo checkout page
+      if (paymentData.checkoutUrl) {
+        window.location.href = paymentData.checkoutUrl;
+      } else {
+        throw new Error("Invalid payment response");
+      }
     } catch (err) {
       console.error("Checkout error:", err);
-      setError(err.message || "Failed to process checkout");
+      setError(err.message);
       toast.error(err.message || "Failed to process checkout");
     } finally {
       setLoading(false);

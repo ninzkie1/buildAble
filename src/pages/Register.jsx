@@ -77,145 +77,149 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-20 w-20 flex items-center justify-center">
-            <img src={logo} alt="BuildAble Logo" className="w-full h-full object-contain" />
+    <div className="absolute inset-0 w-full min-h-screen overflow-hidden">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/bg-login.jpg')",
+        }}
+      />
+
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#B84937]/90 to-[#7A2B22]/90" />
+
+      {/* Content Container */}
+      <div className="relative z-10 w-full min-h-screen flex items-center justify-center px-4">
+        <div className="w-full max-w-md bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8">
+          <div className="flex flex-col items-center mb-6">
+            <img src={logo} alt="BuildAble Logo" className="h-16 mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-1">Create an account</h2>
+            <p className="text-white/90">
+              Already have an account?{' '}
+              <Link to="/login" className="text-yellow-400 hover:text-yellow-300">
+                Sign in
+              </Link>
+            </p>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Create an account</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign in
-            </Link>
-          </p>
+
+          {error && (
+            <div className="bg-red-50/90 border-l-4 border-red-500 p-4 my-4">
+              <p className="text-red-700">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            <div className="space-y-4">
+              {/* Name field */}
+              <div className="relative flex items-center">
+                <UserCircle className="absolute left-3 h-5 w-5 text-gray-300" />
+                <input
+                  name="name"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your Full Name"
+                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                />
+              </div>
+
+              {/* Email field */}
+              <div className="relative flex items-center">
+                <Mail className="absolute left-3 h-5 w-5 text-gray-300" />
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your Email"
+                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                />
+              </div>
+
+              {/* Password field */}
+              <div className="relative flex items-center">
+                <Lock className="absolute left-3 h-5 w-5 text-gray-300" />
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your Password"
+                  className="w-full pl-10 pr-10 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-gray-300 hover:text-gray-100"
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </button>
+              </div>
+
+              {/* Confirm Password field */}
+              <div className="relative flex items-center">
+                <Lock className="absolute left-3 h-5 w-5 text-gray-300" />
+                <input
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm your Password"
+                  className="w-full pl-10 pr-10 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 text-gray-300 hover:text-gray-100"
+                >
+                  {showConfirmPassword ? <EyeOff /> : <Eye />}
+                </button>
+              </div>
+
+              {/* Role selection */}
+              <div className="flex justify-between items-center gap-4">
+                <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/30 hover:border-yellow-300 cursor-pointer flex-1 text-white">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="user"
+                    checked={formData.role === 'user'}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-yellow-400 focus:ring-yellow-300 border-white/30"
+                  />
+                  <User className="h-5 w-5" />
+                  <span>User</span>
+                </label>
+                <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/30 hover:border-yellow-300 cursor-pointer flex-1 text-white">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="seller"
+                    checked={formData.role === 'seller'}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-yellow-400 focus:ring-yellow-300 border-white/30"
+                  />
+                  <Store className="h-5 w-5" />
+                  <span>Seller</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Submit button */}
+            <button
+              type="submit"
+              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-lg transition flex items-center justify-center"
+            >
+              <User className="h-5 w-5 mr-2" />
+              Sign up
+            </button>
+          </form>
         </div>
-
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 my-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm space-y-4">
-            {/* Name field */}
-            <div className="relative flex items-center">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <UserCircle className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your Full Name"
-                className="block w-full pl-10 pr-3 py-3 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Email field */}
-            <div className="relative flex items-center">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your Email"
-                className="block w-full pl-10 pr-3 py-3 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            {/* Password field */}
-            <div className="relative flex items-center">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your Password"
-                className="block w-full pl-10 pr-10 py-3 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
-              </button>
-            </div>
-
-            {/* Confirm Password field */}
-            <div className="relative flex items-center">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm your Password"
-                className="block w-full pl-10 pr-10 py-3 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {showConfirmPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
-              </button>
-            </div>
-
-            {/* Role selection */}
-            <div className="flex justify-between items-center gap-4">
-              <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer flex-1">
-                <input
-                  type="radio"
-                  name="role"
-                  value="user"
-                  checked={formData.role === 'user'}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                />
-                <User className="h-5 w-5 text-gray-600" />
-                <span className="text-gray-700">User</span>
-              </label>
-              <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:border-blue-500 cursor-pointer flex-1">
-                <input
-                  type="radio"
-                  name="role"
-                  value="seller"
-                  checked={formData.role === 'seller'}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                />
-                <Store className="h-5 w-5 text-gray-600" />
-                <span className="text-gray-700">Seller</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Submit button */}
-          <button
-            type="submit"
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <User className="h-5 w-5 mr-2" />
-            Sign up
-          </button>
-        </form>
       </div>
     </div>
   );
