@@ -1,6 +1,21 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
+  
+  // Add function to handle authentication check
+  const handleShopNowClick = (e) => {
+    e.preventDefault();
+    // Check if user is authenticated (assuming you have a token in localStorage)
+    const token = localStorage.getItem('token'); // or however you store your auth token
+    
+    if (token) {
+      navigate('/userHome');
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <section className="relative w-full overflow-hidden">
       <div
@@ -24,8 +39,9 @@ export const HeroSection = () => {
             Quality tools for professionals and DIY enthusiasts. Shop our
             extensive collection of power tools, hand tools, and equipment.
           </p>
-          <Link
-            to="/shop"
+          {/* Replace Link with button */}
+          <button
+            onClick={handleShopNowClick}
             className="inline-flex items-center justify-center px-6 py-3 bg-white text-[#B84937] rounded-lg font-medium hover:bg-gray-100 transition shadow-lg"
           >
             Shop Now
@@ -42,7 +58,7 @@ export const HeroSection = () => {
                 d="M9 5l7 7-7 7"
               />
             </svg>
-          </Link>
+          </button>
         </div>
 
         <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center">
