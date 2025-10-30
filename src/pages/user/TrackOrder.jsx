@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { Package, Truck, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import config from '../../config/config';
 
 export default function TrackOrder() {
   const { orderId } = useParams();
@@ -14,7 +15,7 @@ export default function TrackOrder() {
     const fetchOrder = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/orders/${orderId}`,
+          `${config.apiUrl}/api/orders/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${user.token}`,

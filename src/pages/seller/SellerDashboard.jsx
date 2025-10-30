@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { ArrowUp, ArrowDown, Package, DollarSign, ShoppingCart, AlertCircle } from 'lucide-react';
-
+import config from "../../config/config";
 export default function SellerHome() {
     const [salesData, setSalesData] = useState([]);
     const [statistics, setStatistics] = useState({
@@ -32,7 +32,7 @@ export default function SellerHome() {
         const fetchDashboardData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:5000/api/seller/dashboard', {
+                const response = await fetch(`${config.apiUrl}/api/seller/dashboard`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

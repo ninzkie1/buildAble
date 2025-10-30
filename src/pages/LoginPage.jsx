@@ -4,6 +4,8 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import config from "../config/config";
+
 
 export default function LoginPage() {
   const location = useLocation();
@@ -29,7 +31,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/login", {
+      const res = await fetch(`${config.apiUrl}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -89,7 +91,7 @@ export default function LoginPage() {
   }, [navigate]);
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/api/users/auth/google";
+    window.location.href = `${config.apiUrl}/api/users/auth/google`;
   };
 
   return (

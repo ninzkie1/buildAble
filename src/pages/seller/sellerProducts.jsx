@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusCircle, Edit, Trash2, Star, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
+import config from '../../config/config';
 
 const CATEGORIES = [
   'All',
@@ -35,7 +36,7 @@ export default function SellerProducts() {
   const fetchSellerProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/products/seller/products', {
+      const response = await fetch(`${config.apiUrl}/api/products/seller/products`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -89,7 +90,7 @@ export default function SellerProducts() {
       }
 
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/products/${productId}`, {
+      const response = await fetch(`${config.apiUrl}/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import { HeroSection } from "../components/HeroSection";
 import { ProductCard } from "../components/ProductCard";
 import Footer from "../components/Footer";
+import config from "../config/config";
 
 export const LandingPage = () => {
   const [products, setProducts] = useState([]);
@@ -35,7 +36,7 @@ export const LandingPage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/products");
+        const response = await fetch(`${config.apiUrl}/api/products`);
         if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
 
