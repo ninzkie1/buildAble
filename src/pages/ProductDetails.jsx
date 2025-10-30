@@ -4,6 +4,7 @@ import { ShoppingCart, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext'; // Update this import
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import config from '../config/config';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -28,7 +29,7 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${id}`);
+        const response = await fetch(`${config.apiUrl}/api/products/${id}`);
         if (!response.ok) throw new Error('Failed to fetch product details');
         
         const data = await response.json();
@@ -46,7 +47,7 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${id}/reviews`);
+        const response = await fetch(`${config.apiUrl}/api/products/${id}/reviews`);
         const data = await response.json();
         if (data.success) {
           setReviews(data.reviews);
@@ -68,7 +69,7 @@ export default function ProductDetails() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}/can-review`,
+          `${config.apiUrl}/api/products/${id}/can-review`,
           {
             headers: {
               Authorization: `Bearer ${user.token}`,
@@ -107,7 +108,7 @@ export default function ProductDetails() {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}/reviews`, {
+      const response = await fetch(`${config.apiUrl}/api/products/${id}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +122,7 @@ export default function ProductDetails() {
       if (data.success) {
         toast.success('Review submitted successfully!');
         // Refresh reviews
-        const reviewsResponse = await fetch(`http://localhost:5000/api/products/${id}/reviews`);
+        const reviewsResponse = await fetch(`${config.apiUrl}/api/products/${id}/reviews`);
         const reviewsData = await reviewsResponse.json();
         setReviews(reviewsData.reviews);
         setUserReview({ rating: 5, comment: '' });

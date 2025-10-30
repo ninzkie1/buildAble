@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import toast from 'react-hot-toast';
+import config from '../config/config';
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -24,7 +25,7 @@ export default function PaymentSuccess() {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/payments/verify/${orderId}`,
+        `${config.apiUrl}/api/payments/verify/${orderId}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,

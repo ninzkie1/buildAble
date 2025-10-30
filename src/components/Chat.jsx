@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Send, X } from 'lucide-react';
@@ -7,109 +7,136 @@ import config from '../config/config';
 export default function Chat({ sellerId, orderId, onClose }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [connectionStatus, setConnectionStatus] = useState('connecting');
-  const [isLoading, setIsLoading] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const { user } = useContext(AuthContext);
-  const messagesEndRef = useRef(null);
   const ws = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
+  const reconnectTimeout = useRef(null);
+  const messagesEndRef = useRef(null); // Add this ref
 
-  // Add fetchChatHistory function
-  const fetchChatHistory = async () => {
-    try {
-      const response = await fetch(`${config.apiUrl}/api/chat/history/${orderId}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        const formattedMessages = data.messages.map(message => ({
-          ...message,
-          senderId: message.sender._id,
-          timestamp: message.createdAt || message.timestamp
-        }));
-        setMessages(formattedMessages);
-      }
-    } catch (error) {
-      console.error('Error fetching chat history:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  // Add auto-scroll function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const connectWebSocket = () => {
+  // Add effect for auto-scrolling
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const connectWebSocket = useCallback(() => {
+    if (ws.current?.readyState === 1) return;
+    
     try {
-      if (ws.current?.readyState === WebSocket.OPEN) {
-        return; // Already connected
-      }
-
-      ws.current = new WebSocket(
-        `${config.apiUrl.replace('http', 'ws')}?userId=${user._id}&receiverId=${sellerId}&orderId=${orderId}`
-      );
-
+      const wsUrl = config.getWebSocketUrl({
+        userId: user._id,
+        receiverId: sellerId,
+        orderId: orderId
+      });
+      console.log('Connecting WebSocket:', wsUrl);
+      
+      ws.current = new WebSocket(wsUrl);
+      setConnectionStatus('connecting');
+      
+      let reconnectAttempts = 0;
+      const maxReconnectAttempts = 5;
+      
       ws.current.onopen = () => {
         console.log('WebSocket Connected');
         setConnectionStatus('connected');
-        // Clear any pending reconnection attempts
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
-        }
+        reconnectAttempts = 0;
+      };
+
+      ws.current.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        setMessages(prev => {
+          const messageExists = prev.some(m => m._id === message._id);
+          return messageExists ? prev : [...prev, message];
+        });
       };
 
       ws.current.onclose = () => {
         console.log('WebSocket Disconnected');
         setConnectionStatus('disconnected');
-        // Attempt to reconnect after 3 seconds
-        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
+        ws.current = null;
+        
+        if (reconnectAttempts < maxReconnectAttempts) {
+          reconnectAttempts++;
+          console.log(`Reconnecting... Attempt ${reconnectAttempts}`);
+          reconnectTimeout.current = setTimeout(connectWebSocket, 3000);
+        } else {
+          console.log('Max reconnection attempts reached');
+        }
       };
 
       ws.current.onerror = (error) => {
         console.error('WebSocket Error:', error);
         setConnectionStatus('error');
       };
-
-      ws.current.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        if (message.error) {
-          console.error('Message Error:', message.error);
-          return;
-        }
-        setMessages(prev => {
-          const messageExists = prev.some(m => m._id === message._id);
-          return messageExists ? prev : [...prev, message];
-        });
-      };
     } catch (error) {
-      console.error('Connection Error:', error);
+      console.error('WebSocket connection error:', error);
       setConnectionStatus('error');
     }
-  };
+  }, [user._id, sellerId, orderId]);
+
+  const fetchChatHistory = useCallback(async () => {
+    try {
+      console.log('Fetching chat for order:', orderId);
+      const response = await fetch(`${config.apiUrl}/api/chat/history/${orderId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch chat history: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Chat data received:', data);
+
+      if (data.success && Array.isArray(data.messages)) {
+        const formattedMessages = data.messages.map(message => ({
+          ...message,
+          senderId: message.sender?._id || message.senderId,
+          sender: {
+            _id: message.sender?._id || message.senderId,
+            name: message.sender?.name || 'Unknown'
+          },
+          timestamp: message.createdAt || message.timestamp
+        }));
+        setMessages(formattedMessages);
+      } else {
+        console.error('Invalid message data:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+      setConnectionStatus('error');
+    }
+  }, [orderId, user.token]);
 
   useEffect(() => {
-    connectWebSocket();
     fetchChatHistory();
-
+    connectWebSocket();
+    
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+      // Cleanup function
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
+        reconnectTimeout.current = null;
       }
       if (ws.current) {
         ws.current.close();
+        ws.current = null;
       }
     };
-  }, [sellerId, orderId]);
+  }, [connectWebSocket]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
-
-    if (ws.current?.readyState !== WebSocket.OPEN) {
-      console.log('Reconnecting...');
-      connectWebSocket();
-      return;
-    }
+    if (!newMessage.trim() || !ws.current || ws.current.readyState !== 1) return;
 
     const messageData = {
       senderId: user._id,
@@ -184,11 +211,12 @@ export default function Chat({ sellerId, orderId, onClose }) {
               </div>
             );
           })}
-          {isLoading && (
+          {messages.length === 0 && (
             <div className="text-center text-gray-500 text-sm py-4">
-              Loading chat history...
+              No messages yet. Start the conversation!
             </div>
           )}
+          {/* Add this div for scrolling */}
           <div ref={messagesEndRef} />
         </div>
       </div>

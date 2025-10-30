@@ -3,6 +3,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SellerChat from '../../components/SellerChat';
+import config from '../../config/config';
 
 const formatDateTime = (dateString) => {
   if (!dateString) return 'N/A';
@@ -39,7 +40,7 @@ export default function SellerOrders() {
     const fetchSellerOrders = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/seller/orders?page=${currentPage}&limit=${ordersPerPage}`, 
+          `${config.apiUrl}/api/seller/orders?page=${currentPage}&limit=${ordersPerPage}`, 
           {
             headers: {
               Authorization: `Bearer ${user.token}`,
@@ -82,7 +83,7 @@ export default function SellerOrders() {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/seller/orders/${orderId}/status`, {
+      const response = await fetch(`${config.apiUrl}/api/seller/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

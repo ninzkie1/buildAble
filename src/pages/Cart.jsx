@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import AddressModal from "../components/AddressModal";
+import config from "../config/config";
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -27,7 +28,7 @@ export default function Cart() {
     const fetchUserProfile = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/users/profile",
+          `${config.apiUrl}/api/users/profile`,
           {
             headers: {
               Authorization: `Bearer ${user.token}`,
@@ -52,7 +53,7 @@ export default function Cart() {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/users/profile",
+        `${config.apiUrl}/api/users/profile`,
         {
           method: "PUT",
           headers: {
@@ -116,7 +117,7 @@ export default function Cart() {
       }
 
       const orderResponse = await fetch(
-        "http://localhost:5000/api/orders/checkout",
+        `${config.apiUrl}/api/orders/checkout`,
         {
           method: "POST",
           headers: {
@@ -157,7 +158,7 @@ export default function Cart() {
 
       // Continue with online payment flow
       const paymentResponse = await fetch(
-        "http://localhost:5000/api/payments/create",
+        `${config.apiUrl}/api/payments/create`,
         {
           method: "POST",
           headers: {

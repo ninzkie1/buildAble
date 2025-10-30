@@ -3,7 +3,8 @@ import { Search, SlidersHorizontal, Star, TrendingUp, ChevronLeft, ChevronRight 
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
-import toast from 'react-hot-toast';
+import config from '../../config/config';
+import toast from 'react-hot-toast'; 
 
 // Add this utility function at the top of the file
 const getOptimizedImageUrl = (imageUrl, width = 400) => {
@@ -51,7 +52,7 @@ export const UserHome = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products');
+        const response = await fetch(`${config.apiUrl}/api/products`);
         const data = await response.json();
         
         // Map products to ensure all required fields are present

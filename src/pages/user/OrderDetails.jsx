@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/helpers';
+import config from '../../config/config';
 
 export default function OrderDetails() {
   const { id } = useParams();
@@ -24,7 +25,7 @@ export default function OrderDetails() {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/orders/${id}`, {
+        const response = await fetch(`${config.apiUrl}/api/orders/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -159,7 +160,7 @@ export default function OrderDetails() {
                   </div>
                 </div>
                 <p className="font-medium">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  ₱{(item.product.price * item.quantity).toFixed(2)}
                 </p>
               </div>
             ))}

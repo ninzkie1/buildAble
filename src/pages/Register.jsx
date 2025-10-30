@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import logo from '/logo.png';
 import { AuthContext } from '../context/AuthContext';
+import config from '../config/config';
 
 export default function RegisterPage() {
   const { login } = useContext(AuthContext);
@@ -40,7 +41,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/users/register', {
+      const res = await fetch(`${config.apiUrl}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

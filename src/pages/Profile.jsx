@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import config from '../config/config';
 
 export default function Profile() {
   const { user } = useContext(AuthContext);
@@ -33,7 +34,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch(`${config.apiUrl}/api/users/profile`, {
         headers: {
           'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json'
@@ -76,7 +77,7 @@ export default function Profile() {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/users/profile', {
+      const response = await fetch(`${config.apiUrl}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${user.token}`,
@@ -105,7 +106,7 @@ export default function Profile() {
   const testGeocoding = async () => {
     try {
       const testAddress = "123 Test St, Manila, Philippines";
-      const response = await fetch('http://localhost:5000/api/users/test-geocode', {
+      const response = await fetch(`${config.apiUrl}/api/users/test-geocode`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${user.token}`,

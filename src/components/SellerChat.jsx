@@ -1,40 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Send, X } from 'lucide-react';
+import config from '../config/config';
 
 export default function SellerChat({ userId, orderId, onClose }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [connectionStatus, setConnectionStatus] = useState('connecting');
-  const [isLoading, setIsLoading] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const { user } = useContext(AuthContext);
-  const messagesEndRef = useRef(null);
   const ws = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
+  const reconnectTimeout = useRef(null);
+  const messagesEndRef = useRef(null); 
 
-  const connectWebSocket = () => {
+  // Add auto-scroll function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Add effect for auto-scrolling
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const connectWebSocket = useCallback(() => {
+    if (ws.current?.readyState === 1) return;
+    
     try {
-      if (ws.current?.readyState === WebSocket.OPEN) {
-        return; // Already connected
-      }
-
-      ws.current = new WebSocket(
-        `ws://localhost:5000?userId=${user._id}&receiverId=${userId}&orderId=${orderId}`
-      );
+      const wsUrl = `wss://buildablebackend.onrender.com/ws?userId=${user._id}&receiverId=${userId}&orderId=${orderId}`;
+      console.log('Connecting WebSocket:', wsUrl);
+      
+      ws.current = new WebSocket(wsUrl);
+      setConnectionStatus('connecting');
 
       ws.current.onopen = () => {
         console.log('WebSocket Connected');
         setConnectionStatus('connected');
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
+        if (reconnectTimeout.current) {
+          clearTimeout(reconnectTimeout.current);
         }
       };
 
       ws.current.onclose = () => {
         console.log('WebSocket Disconnected');
         setConnectionStatus('disconnected');
-        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
+        reconnectTimeout.current = setTimeout(connectWebSocket, 3000);
       };
 
       ws.current.onerror = (error) => {
@@ -54,20 +64,24 @@ export default function SellerChat({ userId, orderId, onClose }) {
         });
       };
     } catch (error) {
-      console.error('Connection Error:', error);
+      console.error('WebSocket connection error:', error);
       setConnectionStatus('error');
     }
-  };
+  }, [user._id, userId, orderId]);
 
-  const fetchChatHistory = async () => {
+  const fetchChatHistory = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/history/${orderId}`, {
+      const response = await fetch(`${config.apiUrl}/api/chat/history/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch chat history');
+      }
+
       const data = await response.json();
-      
       if (data.success) {
         const formattedMessages = data.messages.map(message => ({
           ...message,
@@ -78,30 +92,23 @@ export default function SellerChat({ userId, orderId, onClose }) {
       }
     } catch (error) {
       console.error('Error fetching chat history:', error);
-    } finally {
-      setIsLoading(false);
+      setConnectionStatus('error');
     }
-  };
+  }, [orderId, user.token]);
 
   useEffect(() => {
-    connectWebSocket();
     fetchChatHistory();
+    connectWebSocket();
 
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
       }
       if (ws.current) {
         ws.current.close();
       }
     };
-  }, [userId, orderId]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(scrollToBottom, [messages]);
+  }, [fetchChatHistory, connectWebSocket]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -184,11 +191,6 @@ export default function SellerChat({ userId, orderId, onClose }) {
               </div>
             );
           })}
-          {isLoading && (
-            <div className="text-center text-gray-500 text-sm py-4">
-              Loading chat history...
-            </div>
-          )}
           <div ref={messagesEndRef} />
         </div>
       </div>

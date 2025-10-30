@@ -4,6 +4,7 @@ import { XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import config from '../config/config';
 
 export default function PaymentFailed() {
   const [searchParams] = useSearchParams();
@@ -19,7 +20,7 @@ export default function PaymentFailed() {
         console.log('Deleting order:', orderId);
 
         const response = await fetch(
-          `http://localhost:5000/api/orders/${orderId}`,
+          `${config.apiUrl}/api/orders/${orderId}`,
           {
             method: 'DELETE',
             headers: {

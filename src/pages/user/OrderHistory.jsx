@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { AuthContext } from "../../context/AuthContext";
 import Chat from '../../components/Chat';
 import { MessageCircle } from 'lucide-react';
+import config from "../../config/config";
 
 export default function OrderHistory() {
   const { user } = useContext(AuthContext);
@@ -24,7 +25,7 @@ export default function OrderHistory() {
           return;
         }
 
-        const response = await fetch("http://localhost:5000/api/orders/myorders", {
+        const response = await fetch(`${config.apiUrl}/api/orders/myorders`, {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json"
@@ -69,7 +70,7 @@ export default function OrderHistory() {
 
       // Create payment session with all required fields
       const paymentResponse = await fetch(
-        "http://localhost:5000/api/payments/create",
+        `${config.apiUrl}/api/payments/create`,
         {
           method: "POST",
           headers: {

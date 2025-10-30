@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
+import config from '../../config/config';
 
 const CATEGORIES = [
   'Concrete & Cement',
@@ -43,7 +44,7 @@ export default function ProductForm() {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${id}`);
+      const response = await fetch(`${config.apiUrl}/api/products/${id}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -109,8 +110,8 @@ export default function ProductForm() {
       }
 
       const url = id 
-        ? `http://localhost:5000/api/products/${id}`
-        : 'http://localhost:5000/api/products';
+        ? `${config.apiUrl}/api/products/${id}`
+        : `${config.apiUrl}/api/products`;
       
       const method = id ? 'PUT' : 'POST';
 
