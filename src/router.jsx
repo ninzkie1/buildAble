@@ -21,10 +21,11 @@ import SellerOrders from "./pages/seller/Orders";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <NotFound />,
     children: [
       { index: true, element: <LandingPage /> },
       { path: "shop", element: <Feed /> },
