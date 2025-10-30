@@ -261,7 +261,7 @@ export default function SellerProducts() {
                     </div>
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-lg font-bold text-[#B84937]">
-                        ${product.price}
+                        ₱{product.price}
                       </span>
                       <span className={`px-2 py-1 rounded-full text-sm ${
                         product.stock > 0 

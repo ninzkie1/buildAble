@@ -34,8 +34,9 @@ function SellerNavbar() {
         btnRef.current &&
         !menuRef.current.contains(e.target) &&
         !btnRef.current.contains(e.target)
-      )
+      ) {
         setOpen(false);
+      }
     };
     const handleKey = (e) => e.key === "Escape" && setOpen(false);
 
@@ -65,10 +66,7 @@ function SellerNavbar() {
 
   return (
     <nav
-      className="text-white sticky top-0 left-0 w-full z-50 shadow-md"
-      style={{
-        background: "linear-gradient(to right, #B84937, #7A2B22)", // custom gradient
-      }}
+      className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-[#B84937] to-[#7A2B22] text-white shadow-md backdrop-blur-sm transition-all duration-300"
     >
       <div className="w-full px-4 md:px-8 py-2 md:py-3 flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
@@ -87,7 +85,7 @@ function SellerNavbar() {
           <LinkItem to="/seller/products" icon={Package} label="Products" />
           <LinkItem to="/seller/orders" icon={ClipboardList} label="Orders" />
           <LinkItem to="/seller/customers" icon={Users} label="Customers" />
-          <LinkItem to="/seller/settings" icon={Settings} label="Settings" />
+          <LinkItem to="/seller/profile" icon={Settings} label="Profile" />
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-white hover:text-orange-200 px-3 py-1 md:py-2 rounded-md hover:bg-[#B84937]/50"
@@ -112,10 +110,7 @@ function SellerNavbar() {
         ref={menuRef}
         className={`absolute top-16 md:top-20 left-0 right-0 shadow-lg z-50 transform transition-all duration-500 ease-in-out ${
           open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
-        }`}
-        style={{
-          background: "linear-gradient(to right, #B84937, #7A2B22)", // custom gradient
-        }}
+        } bg-gradient-to-r from-[#B84937] to-[#7A2B22]`}
       >
         <div className="flex flex-col items-center py-2 md:py-3 space-y-1 md:space-y-2">
           <LinkItem to="/sellerHome" icon={LayoutDashboard} label="Dashboard" />

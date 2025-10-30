@@ -15,7 +15,11 @@ export const ProductCard = ({ product, onAddToCart, getOptimizedImageUrl }) => {
         </Link>
 
         <div className="absolute top-2 right-2">
-          {product.stock <= 0 ? (
+          {typeof product.stock !== "number" ? (
+            <span className="bg-gray-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+              Stock: N/A
+            </span>
+          ) : product.stock <= 0 ? (
             <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium">
               Out of Stock
             </span>
@@ -29,6 +33,7 @@ export const ProductCard = ({ product, onAddToCart, getOptimizedImageUrl }) => {
             </span>
           )}
         </div>
+
       </div>
 
       <div className="p-3 flex flex-col justify-between">
@@ -37,7 +42,7 @@ export const ProductCard = ({ product, onAddToCart, getOptimizedImageUrl }) => {
             {product.name}
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            ${product.price.toFixed(2)}
+            ₱{product.price.toFixed(2)}
           </p>
         </div>
 

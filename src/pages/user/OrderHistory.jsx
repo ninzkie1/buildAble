@@ -114,80 +114,48 @@ export default function OrderHistory() {
     );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 className="text-2xl font-bold mb-6">My Orders</h2>
-
-      {orders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No orders found</p>
-          <Link
-            to="/shop"
-            className="text-blue-600 hover:underline mt-2 inline-block"
-          >
-            Start Shopping
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <div
-              key={order._id}
-              className="border rounded-lg p-4 hover:shadow-md transition"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-medium">Order #{order._id.slice(-6)}</p>
-                  <p className="text-sm text-gray-500">
-                    Placed on {formatDate(order.createdAt)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium">
-                    Total: ${order.totalAmount.toFixed(2)}
-                  </p>
-                  <p
-                    className={`text-sm ${
-                      order.status === "completed"
-                        ? "text-green-600"
-                        : order.status === "cancelled"
-                        ? "text-red-600"
-                        : order.paymentStatus === "pending"
-                        ? "text-orange-600"
-                        : "text-blue-600"
-                    }`}
-                  >
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </p>
-                </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Order History</h1>
+      <div className="space-y-4">
+        {orders.map((order) => (
+          <div key={order._id} className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Order ID</p>
+                <p className="font-medium">{order._id}</p>
               </div>
-
-              <div className="mt-4 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-600">Date</p>
+                <p className="font-medium">
+                  {new Date(order.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total</p>
+                <p className="font-medium">₱{order.totalAmount.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Status</p>
+                <p className="font-medium">{order.status}</p>
+              </div>
+              <div className="flex gap-2">
                 <Link
                   to={`/orders/${order._id}`}
-                  className="text-blue-600 hover:underline text-sm"
+                  className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition"
                 >
-                  View Order Details →
+                  View Details
                 </Link>
-
-                {/* Show Pay Now button for pending/unpaid orders */}
-                {(order.paymentStatus === "pending" || !order.paymentStatus) && (
-                  <button
-                    onClick={() => handlePayment(order)}
-                    disabled={loading}
-                    className={`${
-                      loading
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-[#B84937] hover:bg-[#9E3C2D]"
-                    } text-white px-4 py-2 rounded-md transition-colors text-sm`}
-                  >
-                    {loading ? "Processing..." : "Pay Now"}
-                  </button>
-                )}
+                <Link
+                  to={`/track-order/${order._id}`}
+                  className="px-4 py-2 text-sm bg-[#B84937] text-white hover:bg-[#9E3C2D] rounded-lg transition"
+                >
+                  Track Order
+                </Link>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

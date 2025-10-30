@@ -1,15 +1,19 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 import { Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import AddressModal from "../components/AddressModal";
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [userAddress, setUserAddress] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('online');
   const navigate = useNavigate();
 
   // Calculate total amount
@@ -18,18 +22,99 @@ export default function Cart() {
     0
   );
 
-  const handleCheckout = async () => {
+  // Fetch user profile when component mounts
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/users/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (data.address) {
+          setUserAddress(data.address);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+      }
+    };
+
+    if (user?.token) {
+      fetchUserProfile();
+    }
+  }, [user]);
+
+  const handleAddressSave = async (address) => {
     try {
-      if (!user || !user.token) {
-        toast.error("Please login to checkout");
-        navigate("/login");
-        return;
+      setLoading(true);
+      const response = await fetch(
+        "http://localhost:5000/api/users/profile",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ address }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save address");
       }
 
+      const data = await response.json();
+      setUserAddress(data.user.address);
+      setShowAddressModal(false);
+      // Proceed with checkout
+      processCheckout(data.user.address);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!user || !user.token) {
+      toast.error("Please login to checkout");
+      navigate("/login");
+      return;
+    }
+
+    // Check if user has address - Changed from toast.info to toast
+    if (!userAddress || !userAddress.street || !userAddress.city) {
+      toast('Please add your delivery address', {
+        icon: '📍',
+        style: {
+          borderRadius: '10px',
+          background: '#333',
+          color: '#fff',
+        },
+      });
+      setShowAddressModal(true);
+      return;
+    }
+
+    processCheckout(userAddress);
+  };
+
+  const processCheckout = async (address) => {
+    try {
       setLoading(true);
       setError("");
 
-      // Create order with required fields
+      // Ensure address is complete
+      if (!address || !address.street || !address.city || !address.state || !address.postalCode || !address.country) {
+        toast.error("Please provide complete shipping address");
+        setShowAddressModal(true);
+        return;
+      }
+
       const orderResponse = await fetch(
         "http://localhost:5000/api/orders/checkout",
         {
@@ -44,7 +129,15 @@ export default function Cart() {
               quantity: item.quantity,
               price: item.price,
             })),
-            // totalAmount and user will be handled by backend
+            address: {
+              street: address.street,
+              city: address.city,
+              state: address.state,
+              postalCode: address.postalCode,
+              country: address.country
+            },
+            paymentMethod
+            // Removed status and paymentStatus override since they will be handled by backend
           }),
         }
       );
@@ -54,7 +147,15 @@ export default function Cart() {
         throw new Error(orderData.message || "Failed to create order");
       }
 
-      // Create PayMongo payment session
+      if (paymentMethod === 'cod') {
+        // Handle COD order
+        clearCart();
+        toast.success('Order placed successfully! (Cash on Delivery)');
+        navigate('/orders');
+        return;
+      }
+
+      // Continue with online payment flow
       const paymentResponse = await fetch(
         "http://localhost:5000/api/payments/create",
         {
@@ -78,10 +179,8 @@ export default function Cart() {
         throw new Error(paymentData.message || "Payment initialization failed");
       }
 
-      // Store order ID in localStorage for verification after payment
       localStorage.setItem("pendingOrderId", orderData.order._id);
 
-      // Redirect to PayMongo checkout page
       if (paymentData.checkoutUrl) {
         window.location.href = paymentData.checkoutUrl;
       } else {
@@ -95,6 +194,14 @@ export default function Cart() {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   if (cart.length === 0) {
     return (
@@ -139,7 +246,7 @@ export default function Cart() {
                 <div>
                   <h3 className="font-medium text-gray-900">{item.name}</h3>
                   <p className="text-gray-600 text-sm">
-                    ${item.price.toFixed(2)}
+                    ₱{item.price.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -173,33 +280,70 @@ export default function Cart() {
         </div>
 
         {/* Cart Summary */}
-        <div className="mt-8 border-t pt-4 flex flex-col sm:flex-row justify-between items-center">
-          <h3 className="text-xl font-semibold">
-            Total: ${totalAmount.toFixed(2)}
-          </h3>
+        <div className="mt-8 border-t pt-4">
+          <div className="mb-4">
+            <h4 className="text-lg font-medium mb-2">Select Payment Method</h4>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="online"
+                  checked={paymentMethod === 'online'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="form-radio text-[#B84937]"
+                />
+                <span>Pay Online</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cod"
+                  checked={paymentMethod === 'cod'}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="form-radio text-[#B84937]"
+                />
+                <span>Cash on Delivery</span>
+              </label>
+            </div>
+          </div>
 
-          <div className="flex gap-3 mt-4 sm:mt-0">
-            <button
-              onClick={clearCart}
-              className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
-              disabled={loading}
-            >
-              Clear Cart
-            </button>
-            <button
-              onClick={handleCheckout}
-              className={`px-5 py-2 rounded-lg text-white transition ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[#B84937] hover:bg-[#9E3C2D]"
-              }`}
-              disabled={loading}
-            >
-              {loading ? "Processing..." : "Proceed to Checkout"}
-            </button>
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <h3 className="text-xl font-semibold">
+              Total: ₱{totalAmount.toFixed(2)}
+            </h3>
+
+            <div className="flex gap-3 mt-4 sm:mt-0">
+              <button
+                onClick={clearCart}
+                className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
+                disabled={loading}
+              >
+                Clear Cart
+              </button>
+              <button
+                onClick={handleCheckout}
+                className={`px-5 py-2 rounded-lg text-white transition ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#B84937] hover:bg-[#9E3C2D]"
+                }`}
+                disabled={loading}
+              >
+                {loading ? "Processing..." : paymentMethod === 'cod' ? "Place Order" : "Proceed to Payment"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <AddressModal
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSave={handleAddressSave}
+        loading={loading}
+      />
     </div>
   );
 }

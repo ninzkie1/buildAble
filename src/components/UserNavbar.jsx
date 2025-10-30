@@ -5,7 +5,7 @@ import {
   Home,
   Store,
   User,
-  Heart,
+  ClipboardList,
   LogOut,
   Menu as MenuIcon,
   X as XIcon,
@@ -36,8 +36,9 @@ function UserNavbar() {
         btnRef.current &&
         !menuRef.current.contains(e.target) &&
         !btnRef.current.contains(e.target)
-      )
+      ) {
         setOpen(false);
+      }
     };
     const handleKey = (e) => e.key === "Escape" && setOpen(false);
 
@@ -58,7 +59,7 @@ function UserNavbar() {
     <Link
       to={to}
       onClick={() => setOpen(false)}
-      className="flex items-center gap-2 text-white hover:text-yellow-200 transition px-3 py-1 md:py-2 rounded-md hover:bg-[#a03d2e] text-sm md:text-base"
+      className="flex items-center gap-2 text-white hover:text-yellow-200 transition px-3 py-1 md:py-2 rounded-md hover:bg-[#B84937]/50 text-sm md:text-base"
     >
       <Icon size={18} />
       <span>{label}</span>
@@ -66,8 +67,9 @@ function UserNavbar() {
   );
 
   return (
-    <nav className="bg-[#B84937] text-white sticky top-0 left-0 w-full z-50 shadow-md">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-[#B84937] to-[#7A2B22] text-white shadow-md backdrop-blur-sm transition-all duration-300">
       <div className="w-full px-4 md:px-8 py-2 md:py-3 flex items-center justify-between h-16 md:h-20">
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img
             src={logo}
@@ -83,7 +85,7 @@ function UserNavbar() {
           <LinkItem to="/userHome" icon={Store} label="Shop" />
           <Link
             to="/cart"
-            className="relative flex items-center gap-2 text-white hover:text-yellow-200 transition px-3 py-1 md:py-2 rounded-md hover:bg-[#a03d2e]"
+            className="relative flex items-center gap-2 text-white hover:text-yellow-200 transition px-3 py-1 md:py-2 rounded-md hover:bg-[#B84937]/50"
           >
             <ShoppingCart size={20} />
             <span>Cart</span>
@@ -93,11 +95,11 @@ function UserNavbar() {
               </span>
             )}
           </Link>
-          <LinkItem to="/wishlist" icon={Heart} label="Wishlist" />
+          <LinkItem to="/orders" icon={ClipboardList} label="My Orders" />
           <LinkItem to="/profile" icon={User} label={user?.name || "Profile"} />
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-white hover:text-yellow-200 px-3 py-1 md:py-2 rounded-md hover:bg-[#a03d2e]"
+            className="flex items-center gap-2 text-white hover:text-yellow-200 px-3 py-1 md:py-2 rounded-md hover:bg-[#B84937]/50"
           >
             <LogOut size={18} />
             <span>Logout</span>
@@ -108,7 +110,7 @@ function UserNavbar() {
         <button
           ref={btnRef}
           onClick={() => setOpen(!open)}
-          className="md:hidden p-2 rounded-md hover:bg-[#a03d2e] transition"
+          className="md:hidden p-2 rounded-md hover:bg-[#B84937]/50 transition"
         >
           {open ? <XIcon size={24} /> : <MenuIcon size={24} />}
         </button>
@@ -117,21 +119,21 @@ function UserNavbar() {
       {/* Mobile Dropdown */}
       <div
         ref={menuRef}
-        className={`absolute top-16 md:top-20 left-0 right-0 bg-[#B84937] shadow-lg z-50 transform transition-all duration-500 ease-in-out ${
+        className={`absolute top-16 md:top-20 left-0 right-0 shadow-lg z-50 transform transition-all duration-500 ease-in-out ${
           open
             ? "opacity-100 translate-y-0"
             : "opacity-0 -translate-y-2 pointer-events-none"
-        }`}
+        } bg-gradient-to-r from-[#B84937] to-[#7A2B22]`}
       >
         <div className="flex flex-col items-center py-2 md:py-3 space-y-1 md:space-y-2">
           <LinkItem to="/" icon={Home} label="Home" />
           <LinkItem to="/userHome" icon={Store} label="Shop" />
           <LinkItem to="/cart" icon={ShoppingCart} label="Cart" />
-          <LinkItem to="/wishlist" icon={Heart} label="Wishlist" />
+          <LinkItem to="/orders" icon={ClipboardList} label="My Orders" />
           <LinkItem to="/profile" icon={User} label={user?.name || "Profile"} />
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 text-white hover:text-yellow-200 w-full px-3 py-2 rounded-md hover:bg-[#a03d2e]"
+            className="flex items-center gap-2 text-white hover:text-yellow-200 w-full px-3 py-2 rounded-md hover:bg-[#B84937]/50"
           >
             <LogOut size={18} />
             <span>Logout</span>

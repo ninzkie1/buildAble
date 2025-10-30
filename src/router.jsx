@@ -14,6 +14,10 @@ import ProductDetails from './pages/ProductDetails';
 import SellerProducts from "./pages/seller/sellerProducts";
 import ProductForm from './pages/seller/ProductForm';
 import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailed from './pages/PaymentFailed';
+import Profile from "./pages/Profile";
+import TrackOrder from "./pages/user/TrackOrder";
+import SellerOrders from "./pages/seller/Orders";
 
 const router = createBrowserRouter([
   {
@@ -56,6 +60,22 @@ const router = createBrowserRouter([
         path: "/payment-success",
         element: <PaymentSuccess />,
       },
+      {
+        path: "/payment-failed",
+        element: <PaymentFailed />,
+      },
+      {
+        path: "/profile",
+        element: <Profile/>
+      },
+      {
+        path: "track-order/:orderId",
+        element: <TrackOrder />
+      },
+      {
+        path: "seller/orders",
+        element: <SellerOrders />
+      }
     ],
   },
 ]);

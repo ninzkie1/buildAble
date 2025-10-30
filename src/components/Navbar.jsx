@@ -6,7 +6,7 @@ import {
   LogIn,
   Menu as MenuIcon,
   X as XIcon,
-  Info,  // Add this import
+  Info,
 } from "lucide-react";
 import logo from "/logo.png";
 import { useCart } from "../context/CartContext";
@@ -23,7 +23,7 @@ function Navbar() {
     openRef.current = open;
   }, [open]);
 
-  // Handle outside click + ESC
+  // Close menu on outside click or ESC
   useEffect(() => {
     const handleOutside = (e) => {
       if (
@@ -46,7 +46,7 @@ function Navbar() {
     };
   }, []);
 
-  // Update LinkItem component
+  // Reusable link item
   const LinkItem = ({ to, icon: Icon, label }) => (
     <Link
       to={to}
@@ -58,10 +58,10 @@ function Navbar() {
     </Link>
   );
 
-  // Calculate cart items count
+  // Cart item count
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
-  // Update LinkItem component for Cart to include counter
+  // Cart link with badge
   const CartLink = () => (
     <Link
       to="/cart"
@@ -78,7 +78,7 @@ function Navbar() {
     </Link>
   );
 
-  // Update the About link in your Navbar
+  // About link with smooth scroll
   const AboutLink = () => (
     <Link
       to="/#about"
@@ -102,22 +102,23 @@ function Navbar() {
 
   return (
     <nav
-      className="text-white sticky top-0 left-0 w-full h-50 z-50 shadow-md backdrop-blur-sm transition-all duration-300"
-      style={{
-        background: "linear-gradient(to right, #B84937, #7A2B22)",
-      }}
+      className="
+        fixed top-0 left-0 w-full z-50
+        bg-gradient-to-r from-[#B84937] to-[#7A2B22]
+        text-white shadow-lg backdrop-blur-sm
+        transition-all duration-300
+      "
     >
       <div className="w-full h-20 px-4 md:px-8 py-3 flex items-center justify-between">
-        {/* Left: Logo */}
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="buildAble" className="w-20 h-20 object-contain" />
           <span className="font-bold text-lg">buildAble</span>
         </Link>
 
-        {/* Right: Desktop Links */}
+        {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-10">
           <LinkItem to="/" icon={Home} label="Home" />
-         
           <CartLink />
           <AboutLink />
           <Link
@@ -129,7 +130,7 @@ function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile Burger */}
+        {/* Mobile Burger Button */}
         <button
           ref={btnRef}
           aria-label="Toggle menu"
@@ -144,20 +145,19 @@ function Navbar() {
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile Dropdown */}
       <div
         ref={menuRef}
-        className={`absolute top-16 left-0 right-0 shadow-lg z-50 transform transition-all duration-500 ease-in-out ${
-          open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
-        }`}
-        style={{
-          background: "linear-gradient(to right, #B84937, #7A2B22)",
-        }}
+        className={`absolute top-20 left-0 right-0 shadow-lg z-40 transform transition-all duration-500 ease-in-out ${
+          open
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 -translate-y-2 pointer-events-none"
+        } bg-gradient-to-r from-[#B84937] to-[#7A2B22]`}
       >
         <div className="flex flex-col items-center py-3 space-y-2">
           <LinkItem to="/" icon={Home} label="Home" />
           <CartLink />
-          <AboutLink />  {/* Add this line */}
+          <AboutLink />
           <LinkItem to="/login" icon={LogIn} label="Login" />
         </div>
       </div>

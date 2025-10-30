@@ -22,10 +22,15 @@ export const CartProvider = ({ children }) => {
       const existingItem = prevCart.find((item) => item._id === product._id);
 
       if (existingItem) {
-        // Increase quantity if item already exists
+        // Check if adding one more would exceed stock
+        if (existingItem.quantity >= product.stock) {
+          toast.error(`Cannot add more. Only ${product.stock} items available.`);
+          return prevCart;
+        }
+        // Increase quantity if within stock limit
         return prevCart.map((item) =>
           item._id === product._id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min(item.quantity + 1, product.stock) }
             : item
         );
       }
@@ -39,11 +44,16 @@ export const CartProvider = ({ children }) => {
     setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
   };
 
-  const updateQuantity = (productId, quantity) => {
+  const updateQuantity = (productId, quantity, stock) => {
+    if (quantity > stock) {
+      toast.error(`Cannot add more than ${stock} items`);
+      return;
+    }
+    
     setCart((prevCart) =>
       prevCart.map((item) =>
         item._id === productId
-          ? { ...item, quantity: Math.max(1, quantity) }
+          ? { ...item, quantity: Math.min(Math.max(1, quantity), stock) }
           : item
       )
     );

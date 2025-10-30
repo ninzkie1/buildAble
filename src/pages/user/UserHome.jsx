@@ -17,7 +17,7 @@ const getOptimizedImageUrl = (imageUrl, width = 400) => {
 
 export const UserHome = () => {
   // Add cart context
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -107,10 +107,17 @@ export const UserHome = () => {
     }
   });
 
-  // Add handleAddToCart function
+  // Update the handleAddToCart function
   const handleAddToCart = (product) => {
     if (product.stock <= 0) {
       toast.error('This product is out of stock');
+      return;
+    }
+
+    // Check if item is already in cart
+    const existingItem = cart.find(item => item._id === product._id);
+    if (existingItem && existingItem.quantity >= product.stock) {
+      toast.error(`Cannot add more. Only ${product.stock} items available.`);
       return;
     }
 
@@ -251,21 +258,26 @@ export const UserHome = () => {
                         loading="lazy"
                       />
                     </Link>
-                    <div className="absolute top-2 right-2 flex justify-end w-full px-2">
-                      {product.stock <= 0 ? (
-                          <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                    <div className="absolute top-2 right-2">
+                      {typeof product.stock !== "number" ? (
+                        <span className="bg-gray-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                          Stock: N/A
+                        </span>
+                      ) : product.stock <= 0 ? (
+                        <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                           Out of Stock
-                          </span>
+                        </span>
                       ) : product.stock <= 5 ? (
-                          <span className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
+                        <span className="bg-yellow-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                           Low Stock: {product.stock}
-                          </span>
+                        </span>
                       ) : (
-                          <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium whitespace-nowrap">
-                          In Stock: {product.stock}
-                          </span>
+                        <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                          Stock: {product.stock}
+                        </span>
                       )}
-                      </div>
+                    </div>
+
 
                   </div>
 
@@ -275,7 +287,7 @@ export const UserHome = () => {
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="mt-1 text-gray-600">${product.price.toFixed(2)}</p>
+                    <p className="mt-1 text-gray-600">₱{product.price.toFixed(2)}</p>
                     {/* Add category display */}
                     <div className="mt-1 mb-2">
                       <span className="inline-block px-2 py-1 bg-gray-100 text-sm text-gray-600 rounded-full">
@@ -342,7 +354,11 @@ export const UserHome = () => {
                       />
                     </Link>
                     <div className="absolute top-2 right-2">
-                      {product.stock <= 0 ? (
+                      {typeof product.stock !== "number" ? (
+                        <span className="bg-gray-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                          Stock: N/A
+                        </span>
+                      ) : product.stock <= 0 ? (
                         <span className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                           Out of Stock
                         </span>
@@ -352,7 +368,7 @@ export const UserHome = () => {
                         </span>
                       ) : (
                         <span className="bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                          In Stock
+                          Stock: {product.stock}
                         </span>
                       )}
                     </div>
@@ -363,7 +379,7 @@ export const UserHome = () => {
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="mt-1 text-gray-600">${product.price.toFixed(2)}</p>
+                    <p className="mt-1 text-gray-600">₱{product.price.toFixed(2)}</p>
                     {/* Add category display */}
                     <div className="mt-1 mb-2">
                       <span className="inline-block px-2 py-1 bg-gray-100 text-sm text-gray-600 rounded-full">

@@ -10,10 +10,23 @@ export default function SellerHome() {
         cancelledOrders: 0,
         revenue: 0
     });
+    const [orderStatusData, setOrderStatusData] = useState([]); // Add this state
+    const [changes, setChanges] = useState({
+        revenue: 0,
+        orders: 0,
+        sales: 0,
+        cancelled: 0
+    });
     const [loading, setLoading] = useState(true);
 
-    // Colors for pie chart
-    const COLORS = ['#22c55e', '#ef4444', '#eab308', '#3b82f6'];
+    // Update colors to match status
+    const COLORS = {
+        pending: '#FFA500',    // Orange
+        processing: '#3B82F6', // Blue
+        shipped: '#8B5CF6',    // Purple
+        delivered: '#10B981',  // Green
+        cancelled: '#EF4444'   // Red
+    };
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -29,6 +42,15 @@ export default function SellerHome() {
                 if (response.ok) {
                     setSalesData(data.salesData);
                     setStatistics(data.statistics);
+                    setChanges(data.statistics.changes);
+                    
+                    // Transform order status data for pie chart
+                    const statusData = Object.entries(data.orderStatusData || {}).map(([status, count]) => ({
+                        name: status.charAt(0).toUpperCase() + status.slice(1),
+                        value: count,
+                        color: COLORS[status]
+                    }));
+                    setOrderStatusData(statusData);
                 }
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
@@ -39,13 +61,6 @@ export default function SellerHome() {
 
         fetchDashboardData();
     }, []);
-
-    const orderStatusData = [
-        { name: 'Completed', value: statistics.totalOrders - statistics.cancelledOrders },
-        { name: 'Cancelled', value: statistics.cancelledOrders },
-        { name: 'Pending', value: 5 }, // Replace with actual pending orders count
-        { name: 'Processing', value: 3 } // Replace with actual processing orders count
-    ];
 
     if (loading) {
         return (
@@ -63,28 +78,28 @@ export default function SellerHome() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <StatCard 
                     title="Total Sales"
-                    value={`$${statistics.revenue.toFixed(2)}`}
+                    value={`₱${statistics.revenue.toFixed(2)}`}
                     icon={<DollarSign className="text-green-500" />}
-                    change={+12.5} // Replace with actual percentage change
+                    change={changes.revenue}
                 />
                 <StatCard 
                     title="Total Orders"
                     value={statistics.totalOrders}
                     icon={<ShoppingCart className="text-blue-500" />}
-                    change={+8.2} // Replace with actual percentage change
+                    change={changes.orders}
                 />
                 <StatCard 
                     title="Products Sold"
                     value={statistics.totalSales}
                     icon={<Package className="text-orange-500" />}
-                    change={+15.3} // Replace with actual percentage change
+                    change={changes.sales}
                 />
                 <StatCard 
                     title="Cancelled Orders"
                     value={statistics.cancelledOrders}
                     icon={<AlertCircle className="text-red-500" />}
-                    change={-2.4} // Replace with actual percentage change
-                    isNegative
+                    change={changes.cancelled}
+                    isNegative={changes.cancelled > 0}
                 />
             </div>
 
@@ -122,7 +137,10 @@ export default function SellerHome() {
                                     dataKey="value"
                                 >
                                     {orderStatusData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        <Cell 
+                                            key={`cell-${index}`} 
+                                            fill={entry.color || '#000000'} 
+                                        />
                                     ))}
                                 </Pie>
                                 <Tooltip />

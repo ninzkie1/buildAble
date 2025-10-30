@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -10,66 +10,73 @@ export default function PaymentSuccess() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [verifying, setVerifying] = useState(true);
-  const [verified, setVerified] = useState(false); 
+  const [verified, setVerified] = useState(false);
+  const [toastShown, setToastShown] = useState(false);
+
+  const verifyPayment = useCallback(async () => {
+    if (verified || !user?.token || toastShown) return;
+
+    try {
+      const orderId = searchParams.get('orderId');
+      
+      if (!orderId) {
+        throw new Error('No order ID found');
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/payments/verify/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Verification failed');
+      }
+
+      setVerified(true);
+      clearCart();
+      localStorage.removeItem('pendingOrderId');
+      
+      if (!toastShown) {
+        setToastShown(true);
+        toast.success('Payment successful! Thank you for your purchase.', {
+          id: 'payment-success', // Unique ID prevents duplicate toasts
+        });
+      }
+      
+      setTimeout(() => {
+        navigate('/orders');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      if (!toastShown) {
+        setToastShown(true);
+        toast.error(error.message, {
+          id: 'payment-error', // Unique ID prevents duplicate toasts
+        });
+      }
+      setTimeout(() => {
+        navigate('/cart');
+      }, 2000);
+    } finally {
+      setVerifying(false);
+    }
+  }, [user, navigate, clearCart, searchParams, verified, toastShown]);
 
   useEffect(() => {
-    const verifyPayment = async () => {
-      try {
-        const orderId = searchParams.get('orderId');
-        
-        if (!orderId) {
-          throw new Error('No order ID found');
-        }
-
-        if (verified) return; // Prevent multiple verifications
-
-        // Verify payment status
-        const response = await fetch(
-          `http://localhost:5000/api/payments/verify/${orderId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
-          }
-        );
-
-        const data = await response.json();
-        
-        if (data.success) {
-          setVerified(true); // Mark as verified
-          clearCart();
-          localStorage.removeItem('pendingOrderId');
-          
-          // Show toast only once
-          toast.success('Payment successful! Thank you for your purchase.', {
-            id: 'payment-success', // Add unique ID
-          });
-          
-          setTimeout(() => {
-            navigate('/orders');
-          }, 2000);
-        } else {
-          throw new Error(data.message || 'Payment verification failed');
-        }
-      } catch (error) {
-        console.error('Payment verification error:', error);
-        toast.error(error.message, {
-          id: 'payment-error', // Add unique ID
-        });
-        setTimeout(() => {
-          navigate('/cart');
-        }, 2000);
-      } finally {
-        setVerifying(false);
-      }
-    };
-
-    if (user && user.token && !verified) {
-      verifyPayment();
-    } else if (!user) {
+    if (!user) {
       navigate('/login');
+      return;
     }
-  }, [user, navigate, clearCart, searchParams, verified]); // Add verified to dependencies
+
+    verifyPayment();
+  }, [user, verifyPayment]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -85,9 +92,9 @@ export default function PaymentSuccess() {
               Payment Successful!
             </h2>
             <p className="text-gray-600 mb-6">
-              Your order has been confirmed and is being processed.
+              Thank you for your purchase. Your order has been confirmed.
             </p>
-            <p className="text-gray-500 text-sm mb-4">
+            <p className="text-gray-500 text-sm">
               Redirecting to your orders...
             </p>
           </>
