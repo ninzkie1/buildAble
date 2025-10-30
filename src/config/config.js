@@ -1,7 +1,6 @@
 const config = {
-  apiUrl: process.env.NODE_ENV === 'production' 
-    ? 'https://your-backend-url.vercel.app' 
-    : 'http://localhost:5000'
+  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  wsUrl: import.meta.env.VITE_WS_URL || 'ws://localhost:5000',
 };
 
 export default config;

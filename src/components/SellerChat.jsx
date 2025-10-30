@@ -20,7 +20,7 @@ export default function SellerChat({ userId, orderId, onClose }) {
       }
 
       ws.current = new WebSocket(
-        `ws://localhost:5000?userId=${user._id}&receiverId=${userId}&orderId=${orderId}`
+        `${import.meta.env.VITE_WS_URL}?userId=${user._id}&receiverId=${userId}&orderId=${orderId}`
       );
 
       ws.current.onopen = () => {
@@ -61,7 +61,7 @@ export default function SellerChat({ userId, orderId, onClose }) {
 
   const fetchChatHistory = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/history/${orderId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat/history/${orderId}`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
