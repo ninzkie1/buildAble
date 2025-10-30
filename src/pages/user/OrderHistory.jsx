@@ -3,12 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { formatDate } from "../../utils/helpers";
 import toast from "react-hot-toast";
 import { AuthContext } from "../../context/AuthContext";
+import Chat from '../../components/Chat';
+import { MessageCircle } from 'lucide-react';
 
 export default function OrderHistory() {
   const { user } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeChatSeller, setActiveChatSeller] = useState(null);
+  const [activeChatOrder, setActiveChatOrder] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,6 +109,11 @@ export default function OrderHistory() {
     }
   };
 
+  const handleStartChat = (sellerId, orderId) => {
+    setActiveChatSeller(sellerId);
+    setActiveChatOrder(orderId);
+  };
+
   if (loading) return <div className="text-center py-8">Loading orders...</div>;
   if (error)
     return (
@@ -151,11 +160,28 @@ export default function OrderHistory() {
                 >
                   Track Order
                 </Link>
+                <button
+                  onClick={() => handleStartChat(order.items[0].product.seller, order._id)}
+                  className="px-4 py-2 text-sm bg-green-500 text-white hover:bg-green-600 rounded-lg transition flex items-center gap-2"
+                >
+                  <MessageCircle size={16} />
+                  Contact Seller
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {activeChatSeller && (
+        <Chat
+          sellerId={activeChatSeller}
+          orderId={activeChatOrder}
+          onClose={() => {
+            setActiveChatSeller(null);
+            setActiveChatOrder(null);
+          }}
+        />
+      )}
     </div>
   );
 }

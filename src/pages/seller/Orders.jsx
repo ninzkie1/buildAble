@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SellerChat from '../../components/SellerChat';
 
 const formatDateTime = (dateString) => {
   if (!dateString) return 'N/A';
@@ -32,6 +33,7 @@ export default function SellerOrders() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const ordersPerPage = 5;
+  const [activeChat, setActiveChat] = useState(null);
 
   useEffect(() => {
     const fetchSellerOrders = async () => {
@@ -184,6 +186,10 @@ export default function SellerOrders() {
     );
   };
 
+  const handleStartChat = (userId, orderId) => {
+    setActiveChat({ userId, orderId });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -295,10 +301,30 @@ export default function SellerOrders() {
                 </span>
               </div>
             </div>
+
+            {/* Chat Button */}
+            <div className="mt-4">
+              <button
+                onClick={() => handleStartChat(order.user._id, order._id)}
+                className="px-4 py-2 text-sm bg-green-500 text-white hover:bg-green-600 rounded-lg transition flex items-center gap-2"
+              >
+                <MessageCircle size={16} />
+                Chat with Customer
+              </button>
+            </div>
           </div>
         ))}
       </div>
       {renderPagination()}
+
+      {/* Chat Component */}
+      {activeChat && (
+        <SellerChat
+          userId={activeChat.userId}
+          orderId={activeChat.orderId}
+          onClose={() => setActiveChat(null)}
+        />
+      )}
     </div>
   );
 }
