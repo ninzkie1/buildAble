@@ -18,6 +18,8 @@ import PaymentFailed from './pages/PaymentFailed';
 import Profile from "./pages/Profile";
 import TrackOrder from "./pages/user/TrackOrder";
 import SellerOrders from "./pages/seller/Orders";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -26,58 +28,75 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <LandingPage /> },
       { path: "shop", element: <Feed /> },
-      { path: "cart", element: <Cart /> },
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <Register /> },
-      { path: "adminPanel", element: <AdminPanel /> },
-      { path: "userHome", element: <UserHome /> },
-      { path: "sellerHome", element: <SellerHome /> },
+      
+      { 
+        path: "cart", 
+        element: <ProtectedRoute><Cart /></ProtectedRoute> 
+      },
+      { 
+        path: "adminPanel", 
+        element: <ProtectedRoute><AdminPanel /></ProtectedRoute> 
+      },
+      { 
+        path: "userHome", 
+        element: <ProtectedRoute><UserHome /></ProtectedRoute> 
+      },
+      { 
+        path: "sellerHome", 
+        element: <ProtectedRoute><SellerHome /></ProtectedRoute> 
+      },
       { 
         path: "orders", 
-        element: <OrderHistory /> 
+        element: <ProtectedRoute><OrderHistory /></ProtectedRoute> 
       },
       {
         path: "orders/:id",
-        element: <OrderDetails />
+        element: <ProtectedRoute><OrderDetails /></ProtectedRoute>
       },
       {
         path: "/product/:id",
-        element: <ProductDetails />
+        element: <ProtectedRoute><ProductDetails /></ProtectedRoute>
       },
       {
         path: "/seller/products",
-        element: <SellerProducts/>
+        element: <ProtectedRoute><SellerProducts/></ProtectedRoute>
       },
       {
         path: "/seller/products/new",
-        element: <ProductForm />
+        element: <ProtectedRoute><ProductForm /></ProtectedRoute>
       },
       {
         path: "/seller/products/edit/:id",
-        element: <ProductForm />
+        element: <ProtectedRoute><ProductForm /></ProtectedRoute>
       },
       {
         path: "/payment-success",
-        element: <PaymentSuccess />,
+        element: <ProtectedRoute><PaymentSuccess /></ProtectedRoute>
       },
       {
         path: "/payment-failed",
-        element: <PaymentFailed />,
+        element: <ProtectedRoute><PaymentFailed /></ProtectedRoute>
       },
       {
         path: "/profile",
-        element: <Profile/>
+        element: <ProtectedRoute><Profile/></ProtectedRoute>
       },
       {
         path: "track-order/:orderId",
-        element: <TrackOrder />
+        element: <ProtectedRoute><TrackOrder /></ProtectedRoute>
       },
       {
         path: "seller/orders",
-        element: <SellerOrders />
-      }
+        element: <ProtectedRoute><SellerOrders /></ProtectedRoute>
+      },
     ],
   },
+  {
+    path: "*",
+    element: <NotFound />
+  }
 ]);
 
 export default router;
