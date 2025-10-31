@@ -7,11 +7,14 @@ import {
   Store, 
   UserCircle, 
   Eye, 
-  EyeOff 
+  EyeOff, 
+  Loader2, 
+  CheckCircle2 
 } from 'lucide-react';
 import logo from '/logo.png';
 import { AuthContext } from '../context/AuthContext';
 import config from '../config/config';
+import { toast } from 'react-hot-toast';
 
 export default function RegisterPage() {
   const { login } = useContext(AuthContext);
@@ -25,6 +28,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,9 +40,12 @@ export default function RegisterPage() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match');
       setError('Passwords do not match');
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const res = await fetch(`${config.apiUrl}/api/users/register`, {
@@ -53,27 +60,38 @@ export default function RegisterPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Registration failed');
-
-      // Use context login instead of direct localStorage
-      login(data);
-
-      // Redirect based on user role
-      switch (data.role) {
-        case 'admin':
-          navigate('/adminPanel');
-          break;
-        case 'seller':
-          navigate('/sellerHome');
-          break;
-        case 'user':
-          navigate('/userHome');
-          break;
-        default:
-          navigate('/userHome');
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
+
+      toast.success(
+        (t) => (
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <div>
+              <p className="font-medium">Registration successful!</p>
+              <p className="text-sm text-gray-500">Please check your email to verify your account</p>
+            </div>
+          </div>
+        ),
+        {
+          duration: 5000,
+          position: 'top-center',
+          className: 'bg-white shadow-lg rounded-lg p-4',
+          icon: false
+        }
+      );
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
     } catch (err) {
+      toast.error(err.message || 'Registration failed');
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -214,10 +232,22 @@ export default function RegisterPage() {
             {/* Submit button */}
             <button
               type="submit"
-              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-lg transition flex items-center justify-center"
+              disabled={isLoading}
+              className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 
+                        text-white font-semibold rounded-lg shadow-lg transition 
+                        flex items-center justify-center"
             >
-              <User className="h-5 w-5 mr-2" />
-              Sign up
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Registering...
+                </>
+              ) : (
+                <>
+                  <User className="h-5 w-5 mr-2" />
+                  Sign up
+                </>
+              )}
             </button>
           </form>
         </div>

@@ -20,6 +20,7 @@ import TrackOrder from "./pages/user/TrackOrder";
 import SellerOrders from "./pages/seller/Orders";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import VerifyEmail from './pages/VerifyEmail';
 
 export const router = createBrowserRouter([
   {
@@ -91,6 +92,10 @@ export const router = createBrowserRouter([
       {
         path: "seller/orders",
         element: <ProtectedRoute><SellerOrders /></ProtectedRoute>
+      },
+      {
+        path: "/verify-email",
+        element: <VerifyEmail />
       },
     ],
   },
