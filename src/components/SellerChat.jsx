@@ -23,11 +23,42 @@ export default function SellerChat({ userId, orderId, onClose }) {
     scrollToBottom();
   }, [messages]);
 
+  const fetchChatHistory = useCallback(async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/api/chat/history/${orderId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch chat history');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        const formattedMessages = data.messages.map(message => ({
+          ...message,
+          senderId: message.sender._id,
+          timestamp: message.createdAt || message.timestamp
+        }));
+        setMessages(formattedMessages);
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+      setConnectionStatus('error');
+    }
+  }, [orderId, user.token]);
+
   const connectWebSocket = useCallback(() => {
     if (ws.current?.readyState === 1) return;
     
     try {
-      const wsUrl = `wss://buildablebackend.onrender.com/ws?userId=${user._id}&receiverId=${userId}&orderId=${orderId}`;
+      const wsUrl = config.getWebSocketUrl({
+        userId: user._id,
+        receiverId: userId,
+        orderId: orderId
+      });
       console.log('Connecting WebSocket:', wsUrl);
       
       ws.current = new WebSocket(wsUrl);
@@ -39,6 +70,8 @@ export default function SellerChat({ userId, orderId, onClose }) {
         if (reconnectTimeout.current) {
           clearTimeout(reconnectTimeout.current);
         }
+        // Refresh history on successful (re)connect
+        fetchChatHistory();
       };
 
       ws.current.onclose = () => {
@@ -67,34 +100,7 @@ export default function SellerChat({ userId, orderId, onClose }) {
       console.error('WebSocket connection error:', error);
       setConnectionStatus('error');
     }
-  }, [user._id, userId, orderId]);
-
-  const fetchChatHistory = useCallback(async () => {
-    try {
-      const response = await fetch(`${config.apiUrl}/api/chat/history/${orderId}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch chat history');
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        const formattedMessages = data.messages.map(message => ({
-          ...message,
-          senderId: message.sender._id,
-          timestamp: message.createdAt || message.timestamp
-        }));
-        setMessages(formattedMessages);
-      }
-    } catch (error) {
-      console.error('Error fetching chat history:', error);
-      setConnectionStatus('error');
-    }
-  }, [orderId, user.token]);
+  }, [user._id, userId, orderId, fetchChatHistory]);
 
   useEffect(() => {
     fetchChatHistory();

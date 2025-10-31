@@ -7,17 +7,17 @@ const NotFound = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCount((prev) => {
-        if (prev === 1) {
-          navigate('/');
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCount((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, []);
+
+  useEffect(() => {
+    if (count === 0) {
+      navigate('/');
+    }
+  }, [count, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-100 to-gray-200">

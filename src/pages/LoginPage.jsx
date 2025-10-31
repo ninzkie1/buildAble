@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import config from "../config/config";
-
+import { toast } from 'react-hot-toast';
 
 export default function LoginPage() {
   const location = useLocation();
@@ -36,11 +36,39 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      
+      if (res.status === 403 && data.message.includes('not verified')) {
+        // Show verification message and send new verification email
+        const verificationRes = await fetch(`${config.apiUrl}/api/users/resend-verification`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email }),
+        });
+
+        if (verificationRes.ok) {
+          toast.success(
+            <div className="flex flex-col">
+              <span className="font-medium">Email not verified</span>
+              <span className="text-sm">A new verification email has been sent</span>
+            </div>,
+            { duration: 5000 }
+          );
+        } else {
+          throw new Error("Failed to send verification email");
+        }
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
       handleLoginSuccess(data);
     } catch (err) {
       setError(err.message);
+      toast.error(err.message);
     }
   };
 

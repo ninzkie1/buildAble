@@ -21,6 +21,7 @@ import SellerOrders from "./pages/seller/Orders";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyEmail from './pages/VerifyEmail';
+import GoogleAuth from './pages/GoogleAuth';
 
 export const router = createBrowserRouter([
   {
@@ -96,6 +97,10 @@ export const router = createBrowserRouter([
       {
         path: "/verify-email",
         element: <VerifyEmail />
+      },
+      {
+        path: "/google-auth",
+        element: <GoogleAuth />
       },
     ],
   },

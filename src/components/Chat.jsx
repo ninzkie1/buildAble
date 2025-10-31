@@ -23,61 +23,6 @@ export default function Chat({ sellerId, orderId, onClose }) {
     scrollToBottom();
   }, [messages]);
 
-  const connectWebSocket = useCallback(() => {
-    if (ws.current?.readyState === 1) return;
-    
-    try {
-      const wsUrl = config.getWebSocketUrl({
-        userId: user._id,
-        receiverId: sellerId,
-        orderId: orderId
-      });
-      console.log('Connecting WebSocket:', wsUrl);
-      
-      ws.current = new WebSocket(wsUrl);
-      setConnectionStatus('connecting');
-      
-      let reconnectAttempts = 0;
-      const maxReconnectAttempts = 5;
-      
-      ws.current.onopen = () => {
-        console.log('WebSocket Connected');
-        setConnectionStatus('connected');
-        reconnectAttempts = 0;
-      };
-
-      ws.current.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        setMessages(prev => {
-          const messageExists = prev.some(m => m._id === message._id);
-          return messageExists ? prev : [...prev, message];
-        });
-      };
-
-      ws.current.onclose = () => {
-        console.log('WebSocket Disconnected');
-        setConnectionStatus('disconnected');
-        ws.current = null;
-        
-        if (reconnectAttempts < maxReconnectAttempts) {
-          reconnectAttempts++;
-          console.log(`Reconnecting... Attempt ${reconnectAttempts}`);
-          reconnectTimeout.current = setTimeout(connectWebSocket, 3000);
-        } else {
-          console.log('Max reconnection attempts reached');
-        }
-      };
-
-      ws.current.onerror = (error) => {
-        console.error('WebSocket Error:', error);
-        setConnectionStatus('error');
-      };
-    } catch (error) {
-      console.error('WebSocket connection error:', error);
-      setConnectionStatus('error');
-    }
-  }, [user._id, sellerId, orderId]);
-
   const fetchChatHistory = useCallback(async () => {
     try {
       console.log('Fetching chat for order:', orderId);
@@ -117,6 +62,63 @@ export default function Chat({ sellerId, orderId, onClose }) {
     }
   }, [orderId, user.token]);
 
+  const connectWebSocket = useCallback(() => {
+    if (ws.current?.readyState === 1) return;
+    
+    try {
+      const wsUrl = config.getWebSocketUrl({
+        userId: user._id,
+        receiverId: sellerId,
+        orderId: orderId
+      });
+      console.log('Connecting WebSocket:', wsUrl);
+      
+      ws.current = new WebSocket(wsUrl);
+      setConnectionStatus('connecting');
+      
+      let reconnectAttempts = 0;
+      const maxReconnectAttempts = 5;
+      
+      ws.current.onopen = () => {
+        console.log('WebSocket Connected');
+        setConnectionStatus('connected');
+        reconnectAttempts = 0;
+        // Refresh history on successful (re)connect
+        fetchChatHistory();
+      };
+
+      ws.current.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        setMessages(prev => {
+          const messageExists = prev.some(m => m._id === message._id);
+          return messageExists ? prev : [...prev, message];
+        });
+      };
+
+      ws.current.onclose = () => {
+        console.log('WebSocket Disconnected');
+        setConnectionStatus('disconnected');
+        ws.current = null;
+        
+        if (reconnectAttempts < maxReconnectAttempts) {
+          reconnectAttempts++;
+          console.log(`Reconnecting... Attempt ${reconnectAttempts}`);
+          reconnectTimeout.current = setTimeout(connectWebSocket, 3000);
+        } else {
+          console.log('Max reconnection attempts reached');
+        }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket Error:', error);
+        setConnectionStatus('error');
+      };
+    } catch (error) {
+      console.error('WebSocket connection error:', error);
+      setConnectionStatus('error');
+    }
+  }, [user._id, sellerId, orderId, fetchChatHistory]);
+
   useEffect(() => {
     fetchChatHistory();
     connectWebSocket();
@@ -132,7 +134,7 @@ export default function Chat({ sellerId, orderId, onClose }) {
         ws.current = null;
       }
     };
-  }, [connectWebSocket]);
+  }, [fetchChatHistory, connectWebSocket]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
