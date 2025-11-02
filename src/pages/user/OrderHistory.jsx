@@ -66,6 +66,9 @@ export default function OrderHistory() {
         return;
       }
 
+      // Prevent multiple clicks
+      if (loading) return;
+
       setLoading(true);
 
       // Create payment session with all required fields
@@ -148,7 +151,7 @@ export default function OrderHistory() {
                 <p className="text-sm text-gray-600">Status</p>
                 <p className="font-medium">{order.status}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Link
                   to={`/orders/${order._id}`}
                   className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition"
@@ -161,8 +164,18 @@ export default function OrderHistory() {
                 >
                   Track Order
                 </Link>
+                {/* Pay button - Show only for online payment with pending status */}
+                {order.paymentMethod === 'online' && order.paymentStatus === 'pending' && (
+                  <button
+                    onClick={() => handlePayment(order)}
+                    disabled={loading}
+                    className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? "Processing..." : "Pay Now"}
+                  </button>
+                )}
                 <button
-                  onClick={() => handleStartChat(order.items[0].product.seller, order._id)}
+                  onClick={() => handleStartChat(order.items[0]?.product?.seller, order._id)}
                   className="px-4 py-2 text-sm bg-green-500 text-white hover:bg-green-600 rounded-lg transition flex items-center gap-2"
                 >
                   <MessageCircle size={16} />

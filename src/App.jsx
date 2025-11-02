@@ -1,3 +1,4 @@
+import React from 'react';
 import NavbarContainer from './components/NavbarContainer';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';

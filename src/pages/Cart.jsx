@@ -17,11 +17,17 @@ export default function Cart() {
   const [paymentMethod, setPaymentMethod] = useState('online');
   const navigate = useNavigate();
 
-  // Calculate total amount
-  const totalAmount = cart.reduce(
+  // Calculate subtotal (items total)
+  const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  // Calculate 2% transaction fee
+  const transactionFee = subtotal * 0.02;
+
+  // Calculate final total (subtotal + transaction fee)
+  const totalAmount = subtotal + transactionFee;
 
   // Fetch user profile when component mounts
   useEffect(() => {
@@ -310,31 +316,43 @@ export default function Cart() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <h3 className="text-xl font-semibold">
-              Total: ₱{totalAmount.toFixed(2)}
-            </h3>
-
-            <div className="flex gap-3 mt-4 sm:mt-0">
-              <button
-                onClick={clearCart}
-                className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
-                disabled={loading}
-              >
-                Clear Cart
-              </button>
-              <button
-                onClick={handleCheckout}
-                className={`px-5 py-2 rounded-lg text-white transition ${
-                  loading
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[#B84937] hover:bg-[#9E3C2D]"
-                }`}
-                disabled={loading}
-              >
-                {loading ? "Processing..." : paymentMethod === 'cod' ? "Place Order" : "Proceed to Payment"}
-              </button>
+          {/* Price Breakdown */}
+          <div className="mb-4 space-y-2">
+            <div className="flex justify-between text-gray-600">
+              <span>Subtotal:</span>
+              <span>₱{subtotal.toFixed(2)}</span>
             </div>
+            <div className="flex justify-between text-gray-600">
+              <span>Transaction Fee (2%):</span>
+              <span>₱{transactionFee.toFixed(2)}</span>
+            </div>
+            <div className="border-t pt-2 mt-2">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-semibold">Total:</h3>
+                <h3 className="text-xl font-semibold">₱{totalAmount.toFixed(2)}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-end items-center gap-3">
+            <button
+              onClick={clearCart}
+              className="px-5 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 transition"
+              disabled={loading}
+            >
+              Clear Cart
+            </button>
+            <button
+              onClick={handleCheckout}
+              className={`px-5 py-2 rounded-lg text-white transition ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#B84937] hover:bg-[#9E3C2D]"
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : paymentMethod === 'cod' ? "Place Order" : "Proceed to Payment"}
+            </button>
           </div>
         </div>
       </div>
