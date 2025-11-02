@@ -11,7 +11,7 @@ const config = {
 
 
 
-//for production 
+// for production 
 apiUrl: 'https://buildablebackend.onrender.com',
 wsUrl: 'wss://buildablebackend.onrender.com',
 getWebSocketUrl: function(params) {

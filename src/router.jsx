@@ -6,6 +6,7 @@ import  Cart  from "./pages/Cart";
 import LoginPage from "./pages/LoginPage";
 import Register from "./pages/Register";
 import AdminPanel from "./pages/admin/AdminPannel";
+import AdminSellers from "./pages/admin/AdminSellers";
 import UserHome from "./pages/user/UserHome";
 import SellerHome from "./pages/seller/SellerDashboard";
 import OrderHistory from "./pages/user/OrderHistory";
@@ -22,6 +23,8 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import VerifyEmail from './pages/VerifyEmail';
 import GoogleAuth from './pages/GoogleAuth';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +44,10 @@ export const router = createBrowserRouter([
       { 
         path: "adminPanel", 
         element: <ProtectedRoute><AdminPanel /></ProtectedRoute> 
+      },
+      { 
+        path: "admin/sellers", 
+        element: <ProtectedRoute><AdminSellers /></ProtectedRoute> 
       },
       { 
         path: "userHome", 
@@ -101,6 +108,14 @@ export const router = createBrowserRouter([
       {
         path: "/google-auth",
         element: <GoogleAuth />
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />
+      },
+      {
+        path: "/reset-password",
+        element: <ResetPassword />
       },
     ],
   },
