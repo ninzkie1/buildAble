@@ -65,6 +65,9 @@
   width: fit-content;
   animation: slide 30s linear infinite;
   cursor: grab;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .product-slider:hover {
@@ -82,15 +85,24 @@
   width: 100%;
   mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
 /* Add these new styles */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .full-width-section {

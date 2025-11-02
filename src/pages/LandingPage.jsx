@@ -110,6 +110,11 @@ export const LandingPage = () => {
             <div
               id="productCarousel"
               className="product-slider"
+              style={{ 
+                willChange: 'transform',
+                backfaceVisibility: 'hidden',
+                transform: 'translateZ(0)'
+              }}
             >
               {/* First set of products */}
               {products.map((product) => (
