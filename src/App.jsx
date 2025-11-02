@@ -1,16 +1,19 @@
 import NavbarContainer from './components/NavbarContainer';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/';
+
   return (
     <>
       <AuthProvider>
         <CartProvider>
           <NavbarContainer />
-          <main className="container mx-auto px-4 pt-24 pb-8">
+          <main className={`container mx-auto px-4 ${isLandingPage ? 'pt-0 pb-0' : 'pt-24 pb-8'}`}>
             <Outlet />
           </main>
         </CartProvider>

@@ -93,16 +93,19 @@ export const LandingPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col">
-      {/* Hero Section - Full Width */}
-      <div className="full-width-section bg-gradient-to-r from-[#B84937] to-[#7A2B22]">
+    <div className="min-h-screen w-full bg-white flex flex-col -mt-24">
+      {/* Hero Section - Full Width - Overlaps navbar border by 1px */}
+      <div className="full-width-section bg-gradient-to-r from-[#B84937] to-[#7A2B22]" style={{ marginTop: 'calc(80px - 1px)', paddingTop: 0 }}>
         <HeroSection />
       </div>
 
       {/* Products Section - Full Width with contained content */}
-      <div className="full-width-section py-12">
+      <div className="full-width-section py-12 sm:py-16 md:py-20">
         <div className="content-wrapper">
-          <h2 className="text-xl md:text-2xl font-bold mb-6 text-center">All Products</h2>
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-gray-900">All Products</h2>
+            <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Discover our wide range of professional construction tools and equipment</p>
+          </div>
           <div className="product-wrapper">
             <div
               id="productCarousel"
@@ -132,70 +135,72 @@ export const LandingPage = () => {
       </div>
 
       {/* Features Section - Full Width */}
-      <div className="full-width-section bg-gray-50 py-12">
+      <div className="full-width-section bg-gray-50 py-12 sm:py-16 md:py-20">
         <div className="content-wrapper">
-          <h2 className="text-2xl font-bold text-center mb-8">Why Choose BuildAble</h2>
+          <div className="text-center mb-10 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">Why Choose BuildAble</h2>
+            <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Your trusted partner for quality construction tools and exceptional service</p>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#B84937] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Wrench className="h-8 w-8 text-white" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+            <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#B84937] to-[#9E3C2D] rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <Wrench className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Quality Tools</h3>
-              <p className="text-gray-600">Top-grade construction tools and equipment for professionals</p>
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900">Quality Tools</h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">Top-grade construction tools and equipment for professionals</p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#B84937] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-white" />
+            <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#B84937] to-[#9E3C2D] rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <Users className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Expert Support</h3>
-              <p className="text-gray-600">Dedicated team to help with your construction needs</p>
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900">Expert Support</h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">Dedicated team to help with your construction needs</p>
             </div>
 
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-[#B84937] rounded-full flex items-center justify-center mx-auto mb-4">
-                <Phone className="h-8 w-8 text-white" />
+            <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100 sm:col-span-2 lg:col-span-1">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#B84937] to-[#9E3C2D] rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                <Phone className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">24/7 Service</h3>
-              <p className="text-gray-600">Round-the-clock customer support and assistance</p>
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 text-gray-900">24/7 Service</h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">Round-the-clock customer support and assistance</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* About Section - Full Width */}
-      <div ref={aboutRef} className="full-width-section py-12">
+      <div ref={aboutRef} className="full-width-section py-12 sm:py-16 md:py-20">
         <div className="content-wrapper">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="flex flex-col md:flex-row">
-              <div className="md:w-1/2">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            <div className="flex flex-col lg:flex-row">
+              <div className="lg:w-1/2 relative min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]">
                 <img
                   src="/storeImg.jpg"
                   alt="About BuildAble"
                   className="w-full h-full object-cover"
-                  style={{ minHeight: '400px' }}
                 />
               </div>
-              <div className="md:w-1/2 p-8">
-                <h2 className="text-2xl font-bold mb-4">About BuildAble</h2>
-                <p className="text-gray-600 mb-4">
+              <div className="lg:w-1/2 p-6 sm:p-8 md:p-10 lg:p-12 flex flex-col justify-center">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-gray-900">About BuildAble</h2>
+                <p className="text-gray-600 mb-4 sm:mb-5 text-sm sm:text-base leading-relaxed">
                   At BuildAble, we're committed to providing high-quality construction tools
                   and equipment to professionals and DIY enthusiasts alike. With years of
                   experience in the industry, we understand the importance of reliable tools
                   for successful projects.
                 </p>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed">
                   Our extensive collection includes power tools, hand tools, safety equipment,
                   and more. We pride ourselves on offering competitive prices and exceptional
                   customer service.
                 </p>
                 <Link
                   to="/about"
-                  className="inline-flex items-center text-[#B84937] hover:text-[#9E3C2D] font-medium"
+                  className="inline-flex items-center text-[#B84937] hover:text-[#9E3C2D] font-semibold transition-colors duration-200 text-sm sm:text-base group"
                 >
                   Learn More About Us
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
               </div>
             </div>
@@ -204,37 +209,43 @@ export const LandingPage = () => {
       </div>
 
       {/* Contact Section - Full Width */}
-      <div className="full-width-section bg-gray-50 py-12">
+      <div className="full-width-section bg-gray-50 py-12 sm:py-16 md:py-20">
         <div className="content-wrapper">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-2">Get in Touch</h2>
-            <p className="text-gray-600">Have questions? We're here to help!</p>
+          <div className="text-center mb-10 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 text-gray-900">Get in Touch</h2>
+            <p className="text-gray-600 text-sm sm:text-base md:text-lg">Have questions? We're here to help!</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <Phone className="h-8 w-8 text-[#B84937] mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Call Us</h3>
-              <p className="text-gray-600">+1 (234) 567-8900</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#B84937]/20">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-[#B84937] to-[#9E3C2D] rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <Phone className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+              </div>
+              <h3 className="font-semibold mb-2 sm:mb-3 text-gray-900 text-lg sm:text-xl">Call Us</h3>
+              <p className="text-gray-600 text-sm sm:text-base">+1 (234) 567-8900</p>
             </div>
 
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <Mail className="h-8 w-8 text-[#B84937] mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Email Us</h3>
-              <p className="text-gray-600">contact@buildable.com</p>
+            <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#B84937]/20">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-[#B84937] to-[#9E3C2D] rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <Mail className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+              </div>
+              <h3 className="font-semibold mb-2 sm:mb-3 text-gray-900 text-lg sm:text-xl">Email Us</h3>
+              <p className="text-gray-600 text-sm sm:text-base break-words">contact@buildable.com</p>
             </div>
 
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <MapPin className="h-8 w-8 text-[#B84937] mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Visit Us</h3>
-              <p className="text-gray-600">123 Builder Street, Construction City, CC 12345</p>
+            <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#B84937]/20 sm:col-span-2 lg:col-span-1">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-[#B84937] to-[#9E3C2D] rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <MapPin className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
+              </div>
+              <h3 className="font-semibold mb-2 sm:mb-3 text-gray-900 text-lg sm:text-xl">Visit Us</h3>
+              <p className="text-gray-600 text-sm sm:text-base">123 Builder Street, Construction City, CC 12345</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer - Full Width */}
-      <div className="full-width-section">
+      {/* Footer - Full Width - Removes container bottom padding */}
+      <div className="full-width-section -mb-8">
         <Footer />
       </div>
     </div>

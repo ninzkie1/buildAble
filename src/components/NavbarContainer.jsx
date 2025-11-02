@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import Navbar from "./Navbar";
 import UserNavbar from "./UserNavbar";
 import SellerNavbar from "./SellerNavbar";
+import FloatingCart from "./FloatingCart";
 import { useLocation } from "react-router-dom";
 
 function NavbarContainer() {
@@ -14,16 +15,38 @@ function NavbarContainer() {
   if (isAuthPage) return null;
 
   // Return appropriate navbar based on auth state and role
-  if (!user) return <Navbar />;
+  if (!user) {
+    return (
+      <>
+        <Navbar />
+        <FloatingCart />
+      </>
+    );
+  }
 
   // Check user role and return corresponding navbar
   switch (user.role) {
     case 'seller':
-      return <SellerNavbar />;
+      return (
+        <>
+          <SellerNavbar />
+          {/* Floating cart only for users, not sellers */}
+        </>
+      );
     case 'user':
-      return <UserNavbar />;
+      return (
+        <>
+          <UserNavbar />
+          <FloatingCart />
+        </>
+      );
     default:
-      return <UserNavbar />;
+      return (
+        <>
+          <UserNavbar />
+          <FloatingCart />
+        </>
+      );
   }
 }
 
