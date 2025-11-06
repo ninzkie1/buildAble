@@ -16,6 +16,7 @@ import { HeroSection } from "../components/HeroSection";
 import { ProductCard } from "../components/ProductCard";
 import Footer from "../components/Footer";
 import config from "../config/config";
+import FloatingCart from "../components/FloatingCart";
 
 export const LandingPage = () => {
   const [products, setProducts] = useState([]);
@@ -253,6 +254,7 @@ export const LandingPage = () => {
       <div className="full-width-section -mb-8">
         <Footer />
       </div>
+      <FloatingCart />
     </div>
   );
 };

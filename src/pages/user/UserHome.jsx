@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import config from '../../config/config';
 import toast from 'react-hot-toast'; 
+import FloatingCart from '../../components/FloatingCart';
 
 // Add this utility function at the top of the file
 const getOptimizedImageUrl = (imageUrl, width = 400) => {
@@ -455,6 +456,7 @@ export const UserHome = () => {
           )}
         </div>
       </div>
+      <FloatingCart />
     </div>
   );
 };

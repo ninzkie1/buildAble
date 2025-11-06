@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 import UserNavbar from "./UserNavbar";
 import SellerNavbar from "./SellerNavbar";
 import AdminNavbar from "./AdminNavbar";
-import FloatingCart from "./FloatingCart";
 import { useLocation } from "react-router-dom";
 
 function NavbarContainer() {
@@ -20,7 +19,6 @@ function NavbarContainer() {
     return (
       <>
         <Navbar />
-        <FloatingCart />
       </>
     );
   }
@@ -45,14 +43,12 @@ function NavbarContainer() {
       return (
         <>
           <UserNavbar />
-          <FloatingCart />
         </>
       );
     default:
       return (
         <>
           <UserNavbar />
-          <FloatingCart />
         </>
       );
   }
