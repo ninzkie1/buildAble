@@ -228,7 +228,7 @@ export const LandingPage = () => {
                 <Phone className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
               </div>
               <h3 className="font-semibold mb-2 sm:mb-3 text-gray-900 text-lg sm:text-xl">Call Us</h3>
-              <p className="text-gray-600 text-sm sm:text-base">+1 (234) 567-8900</p>
+              <p className="text-gray-600 text-sm sm:text-base">+63 (991) 6483-606</p>
             </div>
 
             <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#B84937]/20">
@@ -236,7 +236,7 @@ export const LandingPage = () => {
                 <Mail className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
               </div>
               <h3 className="font-semibold mb-2 sm:mb-3 text-gray-900 text-lg sm:text-xl">Email Us</h3>
-              <p className="text-gray-600 text-sm sm:text-base break-words">contact@buildable.com</p>
+              <p className="text-gray-600 text-sm sm:text-base break-words">buildable2025@gmail.com</p>
             </div>
 
             <div className="text-center p-6 sm:p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 hover:border-[#B84937]/20 sm:col-span-2 lg:col-span-1">
@@ -244,7 +244,7 @@ export const LandingPage = () => {
                 <MapPin className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
               </div>
               <h3 className="font-semibold mb-2 sm:mb-3 text-gray-900 text-lg sm:text-xl">Visit Us</h3>
-              <p className="text-gray-600 text-sm sm:text-base">123 Builder Street, Construction City, CC 12345</p>
+              <p className="text-gray-600 text-sm sm:text-base">Danao City, Cebu</p>
             </div>
           </div>
         </div>

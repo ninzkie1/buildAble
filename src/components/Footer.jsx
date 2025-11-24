@@ -63,15 +63,15 @@ const Footer = () => {
             <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
               <li className="flex items-start gap-3">
                 <Phone size={18} className="flex-shrink-0 mt-0.5 text-[#B84937]" />
-                <span className="hover:text-white transition-colors duration-200">+1 (234) 567-8900</span>
+                <span className="hover:text-white transition-colors duration-200">+63 (991) 6483-606</span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail size={18} className="flex-shrink-0 mt-0.5 text-[#B84937]" />
-                <span className="hover:text-white transition-colors duration-200 break-words">contact@buildable.com</span>
+                <span className="hover:text-white transition-colors duration-200 break-words">buildable2025@gmail.com</span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="flex-shrink-0 mt-0.5 text-[#B84937]" />
-                <span className="hover:text-white transition-colors duration-200">123 Builder Street, Construction City, CC 12345</span>
+                <span className="hover:text-white transition-colors duration-200">Danao City, Cebu</span>
               </li>
             </ul>
           </div>
