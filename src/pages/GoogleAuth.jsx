@@ -9,6 +9,22 @@ export default function GoogleAuth() {
   const { login } = useContext(AuthContext);
 
   useEffect(() => {
+    const redirectByRole = (role) => {
+      switch (role) {
+        case 'seller':
+          navigate('/sellerHome');
+          break;
+        case 'admin':
+          navigate('/adminPanel');
+          break;
+        case 'user':
+          navigate('/userHome');
+          break;
+        default:
+          navigate('/');
+      }
+    };
+
     const handleGoogleAuth = async () => {
       const token = searchParams.get('token');
       
@@ -29,8 +45,26 @@ export default function GoogleAuth() {
         }
 
         const userData = await response.json();
-        login({ ...userData, token });
-        navigate('/userHome');
+        const mergedUser = { ...userData, token };
+        login(mergedUser);
+
+        // If opened as a popup from the login page, notify opener and close
+        if (window.opener && window.opener !== window) {
+          try {
+            window.opener.postMessage({ type: 'oauth_success', user: mergedUser }, window.location.origin);
+          } catch (err) {
+            // fallback: still close the popup
+          }
+          window.close();
+          return;
+        }
+
+        if (userData.needsRoleSelection) {
+          navigate('/select-role');
+          return;
+        }
+
+        redirectByRole(userData.role);
       } catch (error) {
         console.error('Google auth error:', error);
         navigate('/login?error=auth_failed');

@@ -18,14 +18,15 @@ import { AuthContext } from '../context/AuthContext';
 import config from '../config/config';
 import { toast } from 'react-hot-toast';
 
-export default function RegisterPage() {
+export default function SellerRegisterPage() {
   const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user',
+    role: 'seller',
+    
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -47,6 +48,8 @@ export default function RegisterPage() {
       return;
     }
 
+    
+
     setIsLoading(true);
 
     try {
@@ -57,7 +60,8 @@ export default function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          role: formData.role
+          role: 'seller',
+          
         }),
       });
 
@@ -73,7 +77,7 @@ export default function RegisterPage() {
             <CheckCircle2 className="h-5 w-5 text-green-500" />
             <div>
               <p className="font-medium">Registration successful!</p>
-              <p className="text-sm text-gray-500">Please check your email to verify your account</p>
+              <p className="text-sm text-gray-500">Please check your email to verify your account </p>
             </div>
           </div>
         ),
@@ -116,12 +120,12 @@ export default function RegisterPage() {
           <div className="flex flex-col items-center mb-6">
             <img src="/logo.png" alt="BuildAble Logo" className="h-16 mb-4" />
             <h2 className="text-2xl font-bold text-white mb-1">
-              Create your account
+              Create your seller account
             </h2>
             
+            
+           
           </div>
-
-        
 
           {error && (
             <div className="bg-red-50/90 border-l-4 border-red-500 p-4 my-4">
@@ -155,8 +159,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your Email"
-                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
-                />
+                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"                />
               </div>
 
               {/* Password field */}
@@ -174,7 +177,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 text-gray-300 hover:text-gray-100"
+                  className="absolute right-3 text-gray-300 hover:text-white"
                 >
                   {showPassword ? <EyeOff /> : <Eye />}
                 </button>
@@ -195,69 +198,65 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 text-gray-300 hover:text-gray-100"
+                  className="absolute right-3 text-gray-300 hover:text-white"
                 >
                   {showConfirmPassword ? <EyeOff /> : <Eye />}
                 </button>
+                
               </div>
-
-              {/* Role selection */}
-              <div className="flex justify-between items-center gap-4">
-                <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/30 hover:border-yellow-300 cursor-pointer flex-1 text-white">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="user"
-                    checked={formData.role === 'user'}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-yellow-400 focus:ring-yellow-300 border-white/30"
-                  />
-                  <User className="h-5 w-5" />
-                  <span>User</span>
-                </label>
-              </div>
+             
             </div>
+            
 
-            {/* Submit button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                  Creating account...
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="h-5 w-5 mr-2" />
-                  Create Buyer Account
-                </>
-              )}
-            </button>
-            <p className="text-white/90">
-              Already have an account?{' '}
-              <Link to="/login" className="text-yellow-400 hover:text-yellow-300">
-                Sign in
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    <Store className="h-5 w-5 mr-2" />
+                    Create Seller Account
+                  </>
+                )}
+                
+              </button>
+               <div className="mt-6">
+                 <p className="text-white/90 text-center">
+                   Already have an account?{' '}
+                   <Link to="/login" className="text-yellow-400 hover:text-yellow-300">
+                     Sign in
+                   </Link>
+                 </p>
+               </div>
+              <div>
+                
+              </div>
+               <div className="mt-6 flex items-center">
+                <div className="border-t border-white flex-grow"></div>
+                <span className="px-3 text-white text-sm">or</span>
+                <div className="border-t border-white flex-grow"></div>
+              </div>
+
+               <div className="mt-6">
+              <Link
+                to="/register"
+                className="w-full flex items-center justify-center px-4 py-3 border border-white/30 rounded-lg text-sm font-medium text-white bg-white/10 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 transition-colors duration-200"
+              >
+                <ShoppingBag className="h-5 w-5 mr-2 text-yellow-300" />
+                Register as a regular user instead
               </Link>
-            </p>
-            <div className="mt-6 flex items-center">
-            <div className="border-t border-white flex-grow"></div>
-            <span className="px-3 text-white text-sm">or</span>
-            <div className="border-t border-white flex-grow"></div>
-          </div>
-
-              <div className="mt-6">
-            <Link
-              to="/seller/register"
-              className="w-full flex items-center justify-center px-4 py-3 border border-white/30 rounded-lg text-sm font-medium text-white bg-white/10 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 transition-colors duration-200"
-            >
-              <Store className="h-5 w-5 mr-2 text-yellow-300" />
-              Register as a seller instead
-            </Link>
-          </div>
+            </div>
+            
+            </div>
           </form>
+
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
-import React from 'react';
+import { useLocation, Outlet } from 'react-router-dom';
 import NavbarContainer from './components/NavbarContainer';
-import { Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { Toaster } from 'react-hot-toast';
@@ -8,13 +7,14 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
+  const hideNavbar = ['/register', '/seller/register', '/contact-dev'].includes(location.pathname);
 
   return (
     <>
       <AuthProvider>
         <CartProvider>
-          <NavbarContainer />
-          <main className={`container mx-auto px-4 ${isLandingPage ? 'pt-0 pb-0' : 'pt-24 pb-8'}`}>
+          {!hideNavbar && <NavbarContainer />}
+          <main className={`container mx-auto px-4 ${isLandingPage ? 'pt-0 pb-0' : hideNavbar ? 'pt-0 pb-8' : 'pt-24 pb-8'}`}>
             <Outlet />
           </main>
         </CartProvider>
@@ -34,15 +34,8 @@ function App() {
           style: {
             background: '#363636',
             color: '#fff',
-            padding: '16px',
-            borderRadius: '8px',
-            fontSize: '14px',
           },
           success: {
-            iconTheme: {
-              primary: '#fff',
-              secondary: '#22c55e',
-            },
             style: {
               background: '#22c55e',
             },

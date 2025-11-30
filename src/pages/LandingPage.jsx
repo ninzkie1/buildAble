@@ -8,9 +8,11 @@ import {
   Users,
   Phone,
   Mail, 
-  MapPin 
+  MapPin,
+  Store,
+  X
 } from "lucide-react";
-import { Link } from "react-router-dom"; 
+import { Link, useLocation, useNavigate } from "react-router-dom"; 
 import toast from "react-hot-toast";
 import { HeroSection } from "../components/HeroSection";
 import { ProductCard } from "../components/ProductCard";
@@ -24,6 +26,20 @@ export const LandingPage = () => {
   const [error, setError] = useState(null);
   const { addToCart } = useCart();
   const aboutRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // New registration modal state and data (moved from LoginPage)
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [registrationData, setRegistrationData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "user"
+  });
+  const [registrationError, setRegistrationError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const getOptimizedImageUrl = (imageUrl, width = 400) => {
     if (!imageUrl) return "/placeholder.jpg";
@@ -74,6 +90,78 @@ export const LandingPage = () => {
   const scrollToAbout = () => {
     aboutRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Open modal if landing page receives state showing signup modal
+  useEffect(() => {
+    if (location?.state?.showSignUpModal) {
+      setShowSignUpModal(true);
+      // if prefill provided (from login oauth), set it
+      const prefill = location.state.prefill;
+      if (prefill) {
+        setRegistrationData(prev => ({ ...prev, ...prefill }));
+      }
+      // Clear location state so refresh won't reopen it
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  // registration handlers
+  const handleRegistrationChange = (e) => {
+    const { name, value } = e.target;
+    setRegistrationData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegistrationSubmit = async (e) => {
+    e.preventDefault();
+    setRegistrationError("");
+
+    if (registrationData.password !== registrationData.confirmPassword) {
+      setRegistrationError("Passwords do not match");
+      return;
+    }
+    if (registrationData.password.length < 6) {
+      setRegistrationError("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsRegistering(true);
+
+    try {
+      const response = await fetch(`${config.apiUrl}/api/users/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: registrationData.name,
+          email: registrationData.email,
+          password: registrationData.password,
+          role: registrationData.role
+        }),
+        credentials: "include"
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Registration failed");
+
+      // If registration returns user and maybe token, store it
+      const user = data.user || data;
+      localStorage.setItem("user", JSON.stringify(user));
+      toast.success("Registration completed successfully!");
+
+      setShowSignUpModal(false);
+
+      // Navigate depending on the role
+      if (user.role === "seller") navigate("/sellerHome");
+      else navigate("/userHome");
+      setTimeout(() => window.location.reload(), 250);
+    } catch (err) {
+      setRegistrationError(err.message || "Failed to complete registration");
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  // Expose open function to pass to the hero Get Started btn if needed
+  const openSignUpModal = () => setShowSignUpModal(true);
 
   if (loading) {
     return (
@@ -255,6 +343,71 @@ export const LandingPage = () => {
         <Footer />
       </div>
       <FloatingCart />
+
+      {/* Registration Modal */}
+      {showSignUpModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md p-6 relative">
+            {/* Close button */}
+            <button onClick={() => setShowSignUpModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+              <X className="h-5 w-5" />
+            </button>
+
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Create an account</h3>
+
+            {registrationError && <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4"><p className="text-red-700">{registrationError}</p></div>}
+
+            <form onSubmit={handleRegistrationSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input type="text" name="name" required value={registrationData.name} onChange={handleRegistrationChange} placeholder="Enter your full name" className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-yellow-300 focus:border-yellow-300" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input type="email" name="email" required value={registrationData.email} onChange={handleRegistrationChange} placeholder="Enter your email" className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-yellow-300 focus:border-yellow-300" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input type="password" name="password" required value={registrationData.password} onChange={handleRegistrationChange} placeholder="Enter password" className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-yellow-300 focus:border-yellow-300" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <input type="password" name="confirmPassword" required value={registrationData.confirmPassword} onChange={handleRegistrationChange} placeholder="Confirm password" className="w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-yellow-300 focus:border-yellow-300" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select role</label>
+                <div className="flex gap-4">
+                  <label className={`px-3 py-2 border rounded-lg cursor-pointer ${registrationData.role === 'user' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200'}`}>
+                    <input type="radio" name="role" value="user" checked={registrationData.role === 'user'} onChange={handleRegistrationChange} className="mr-2" />
+                    Shopper
+                  </label>
+                  <label className={`px-3 py-2 border rounded-lg cursor-pointer ${registrationData.role === 'seller' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200'}`}>
+                    <input type="radio" name="role" value="seller" checked={registrationData.role === 'seller'} onChange={handleRegistrationChange} className="mr-2" />
+                    Seller
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" disabled={isRegistering} className="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition">
+                {isRegistering ? "Registering..." : "Create Account"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

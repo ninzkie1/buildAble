@@ -154,11 +154,15 @@ import Profile from "./pages/Profile";
 import TrackOrder from "./pages/user/TrackOrder";
 import SellerOrders from "./pages/seller/Orders";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
-import VerifyEmail from './pages/VerifyEmail';
 import GoogleAuth from './pages/GoogleAuth';
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+import VerifyEmail from './pages/VerifyEmail';
+
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import SelectRole from "./pages/SelectRole";
+import SellerRegister from "./pages/SellerRegister";
 
 export const router = createBrowserRouter([
   {
@@ -166,10 +170,18 @@ export const router = createBrowserRouter([
     element: <App />,
     errorElement: <NotFound />,
     children: [
-      { index: true, element: <LandingPage /> },
+      { 
+        index: true, 
+        element: (
+          <PublicRoute>
+            <LandingPage />
+          </PublicRoute>
+        )
+      },
       { path: "shop", element: <Feed /> },
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <Register /> },
+      { path: "seller/register", element: <SellerRegister /> },
       
       { 
         path: "cart", 
@@ -236,13 +248,23 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute><SellerOrders /></ProtectedRoute>
       },
       {
-        path: "/verify-email",
-        element: <VerifyEmail />
-      },
-      {
         path: "/google-auth",
         element: <GoogleAuth />
       },
+      {
+        path: "/verify-email",
+        element: <VerifyEmail />
+      },
+      
+      {
+        path: "/select-role",
+        element: (
+          <ProtectedRoute>
+            <SelectRole />
+          </ProtectedRoute>
+        ),
+      },
+      
       {
         path: "/forgot-password",
         element: <ForgotPassword />
@@ -253,6 +275,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
+ 
   {
     path: "*",
     element: <NotFound />
