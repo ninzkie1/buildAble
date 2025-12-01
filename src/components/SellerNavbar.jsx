@@ -9,7 +9,9 @@ import {
   LogOut,
   Menu as MenuIcon,
   X as XIcon,
+  Bell,
 } from "lucide-react";
+import NotificationDropdown from "./NotificationDropdown";
 import { AuthContext } from "../context/AuthContext";
 import logo from "/logo.png";
 
@@ -91,6 +93,12 @@ function SellerNavbar() {
           <LinkItem to="/seller/orders" icon={ClipboardList} label="Orders" />
           <LinkItem to="/seller/customers" icon={Users} label="Customers" />
           <LinkItem to="/seller/profile" icon={Settings} label="Profile" />
+          
+          {/* Notification Dropdown */}
+          <div className="hidden md:flex items-center">
+            <NotificationDropdown />
+          </div>
+          
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-white hover:text-orange-200 transition-all duration-200 px-3 py-2 rounded-md hover:bg-[#B84937]/50 font-medium"

@@ -141,8 +141,11 @@ import LoginPage from "./pages/LoginPage";
 import Register from "./pages/Register";
 import AdminPanel from "./pages/admin/AdminPannel";
 import AdminSellers from "./pages/admin/AdminSellers";
+import ApprovedWithdrawals from "./pages/admin/ApprovedWithdrawals";
+import WithdrawalHistory from "./pages/admin/WithdrawalHistory";
 import UserHome from "./pages/user/UserHome";
 import SellerHome from "./pages/seller/SellerDashboard";
+import SellerCustomers from "./pages/seller/SellerCustomers";
 import OrderHistory from "./pages/user/OrderHistory";
 import OrderDetails from './pages/user/OrderDetails';
 import ProductDetails from './pages/ProductDetails';
@@ -196,12 +199,28 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute><AdminSellers /></ProtectedRoute> 
       },
       { 
+        path: "admin/withdrawals/approved", 
+        element: <ProtectedRoute><ApprovedWithdrawals /></ProtectedRoute> 
+      },
+      { 
+        path: "admin/withdrawals/history", 
+        element: <ProtectedRoute><WithdrawalHistory /></ProtectedRoute> 
+      },
+      { 
         path: "userHome", 
         element: <ProtectedRoute><UserHome /></ProtectedRoute> 
       },
       { 
         path: "sellerHome", 
         element: <ProtectedRoute><SellerHome /></ProtectedRoute> 
+      },
+      {
+        path: "/seller/customers",
+        element: <ProtectedRoute><SellerCustomers /></ProtectedRoute>
+      },
+      {
+        path: "/seller/profile",
+        element: <ProtectedRoute><Profile /></ProtectedRoute>
       },
       { 
         path: "orders", 

@@ -18,7 +18,9 @@ import {
   Mail,
   Phone,
   Calendar,
-  X
+  X,
+  Wallet,
+  ArrowLeftRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import config from '../../config/config';
@@ -185,11 +187,29 @@ export default function AdminSellers() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center gap-3">
-            <Store className="text-[#B84937]" size={32} />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Seller Management</h1>
-              <p className="text-gray-600 mt-1">Manage sellers, view sales, and process withdrawals</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Store className="text-[#B84937]" size={32} />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Seller Management</h1>
+                <p className="text-gray-600 mt-1">Manage sellers, view sales, and process withdrawals</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => navigate('/admin/withdrawals/approved')}
+                className="flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow"
+              >
+                <Wallet size={18} />
+                Approved Withdrawals
+              </button>
+              <button
+                onClick={() => navigate('/admin/withdrawals/history')}
+                className="flex items-center gap-2 px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition shadow"
+              >
+                <ArrowLeftRight size={18} />
+                Withdrawal History
+              </button>
             </div>
           </div>
         </div>

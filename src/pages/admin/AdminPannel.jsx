@@ -21,7 +21,9 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
-  Store
+  Store,
+  Wallet,
+  ArrowLeftRight
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import config from '../../config/config';
@@ -382,7 +384,21 @@ export default function AdminPanel() {
               </h1>
               <p className="text-gray-600 mt-1">Manage user accounts and system settings</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => navigate('/admin/withdrawals/approved')}
+                className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Wallet size={20} />
+                Approved Withdrawals
+              </button>
+              <button
+                onClick={() => navigate('/admin/withdrawals/history')}
+                className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <ArrowLeftRight size={20} />
+                Withdrawal History
+              </button>
               <button
                 onClick={() => navigate('/admin/sellers')}
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"

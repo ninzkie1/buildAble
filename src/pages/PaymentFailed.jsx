@@ -13,7 +13,7 @@ export default function PaymentFailed() {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    let isSubscribed = true; // Add subscription flag
+    let isSubscribed = true; 
 
     const deleteFailedOrder = async (orderId) => {
       try {

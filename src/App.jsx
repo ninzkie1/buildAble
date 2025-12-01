@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast';
 function App() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
-  const hideNavbar = ['/register', '/seller/register', '/contact-dev'].includes(location.pathname);
+  const hideNavbar = ['/register', '/seller/register', '/contact-dev', '/select-role'].includes(location.pathname);
 
   return (
     <>
