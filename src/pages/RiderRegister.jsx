@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   User, 
@@ -24,7 +24,14 @@ export default function RiderRegisterPage() {
     phoneNumber: '',
     address: {
       street: '',
+      region: '',
+      regionCode: '',
+      province: '',
+      provinceCode: '',
       city: '',
+      cityCode: '',
+      barangay: '',
+      barangayCode: '',
       state: '',
       postalCode: '',
       country: 'Philippines'
@@ -35,11 +42,26 @@ export default function RiderRegisterPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const PSGC_BASE_URL = 'https://psgc.gitlab.io/api';
   const baseInputClasses =
     'w-full rounded-lg border border-white/30 bg-white/20 text-sm text-white placeholder-gray-300 transition duration-200 focus:border-yellow-300 focus:ring-2 focus:ring-yellow-300 focus:ring-offset-0 sm:text-base';
   const iconInputClasses = `${baseInputClasses} pl-10 pr-3 py-2.5 sm:py-3`;
   const iconInputWithToggleClasses = `${baseInputClasses} pl-10 pr-10 py-2.5 sm:py-3`;
   const simpleInputClasses = `${baseInputClasses} px-3 py-2.5 sm:py-3`;
+  const selectInputClasses = `${baseInputClasses} px-3 py-2.5 sm:py-3 appearance-none bg-white/20 text-white`;
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null);
+  const [regionHasProvinces, setRegionHasProvinces] = useState(true);
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [isCityOpen, setIsCityOpen] = useState(false);
+  const [isBarangayOpen, setIsBarangayOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,8 +95,20 @@ export default function RiderRegisterPage() {
       return false;
     }
 
-    if (!formData.address.street || !formData.address.city || !formData.address.state || !formData.address.postalCode || !formData.address.country) {
+    if (
+      !formData.address.street ||
+      !formData.address.region ||
+      !formData.address.city ||
+      !formData.address.state ||
+      !formData.address.barangay ||
+      !formData.address.postalCode ||
+      !formData.address.country
+    ) {
       setError('Complete address is required');
+      return false;
+    }
+    if (!selectedRegion || !selectedCity || !selectedBarangay) {
+      setError('Please complete your address using the dropdowns');
       return false;
     }
 
@@ -137,6 +171,165 @@ export default function RiderRegisterPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchCollection = async (path, errorMessage) => {
+    try {
+      const response = await fetch(`${PSGC_BASE_URL}${path}`);
+      if (!response.ok) {
+        throw new Error(errorMessage);
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data.sort((a, b) => (a.name || '').localeCompare(b.name || '')) : [];
+    } catch (err) {
+      console.error(err);
+      toast.error(errorMessage);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const loadRegions = async () => {
+      const regionData = await fetchCollection('/regions/', 'Failed to load regions');
+      setRegions(regionData);
+    };
+    loadRegions();
+  }, []);
+
+  const resetLocationBelow = () => {
+    setSelectedProvince(null);
+    setSelectedCity(null);
+    setSelectedBarangay(null);
+    setProvinces([]);
+    setCities([]);
+    setBarangays([]);
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        province: '',
+        provinceCode: '',
+        state: '',
+        city: '',
+        cityCode: '',
+        barangay: '',
+        barangayCode: ''
+      }
+    }));
+  };
+
+  const handleRegionChange = async (e) => {
+    const code = e.target.value;
+    const region = regions.find(r => r.code === code) || null;
+    setSelectedRegion(region);
+    resetLocationBelow();
+
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        region: region ? region.regionName || region.name : '',
+        regionCode: region?.code || '',
+        country: 'Philippines'
+      }
+    }));
+
+    if (!code) {
+      setRegionHasProvinces(true);
+      return;
+    }
+
+    const provinceList = await fetchCollection(`/regions/${code}/provinces/`, 'Failed to load provinces');
+    setRegionHasProvinces(provinceList.length > 0);
+    setProvinces(provinceList);
+
+    if (provinceList.length === 0) {
+      const regionCities = await fetchCollection(`/regions/${code}/cities-municipalities/`, 'Failed to load cities');
+      setCities(regionCities);
+      setFormData(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          state: region ? region.name : '',
+          province: region ? region.name : '',
+          provinceCode: ''
+        }
+      }));
+    }
+  };
+
+  const handleProvinceChange = async (e) => {
+    const code = e.target.value;
+    const province = provinces.find(p => p.code === code) || null;
+    setSelectedProvince(province);
+    setSelectedCity(null);
+    setSelectedBarangay(null);
+    setCities([]);
+    setBarangays([]);
+
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        province: province ? province.name : '',
+        provinceCode: province?.code || '',
+        state: province ? province.name : prev.address.state,
+        city: '',
+        cityCode: '',
+        barangay: '',
+        barangayCode: ''
+      }
+    }));
+
+    if (!code) return;
+
+    const provinceCities = await fetchCollection(
+      `/provinces/${code}/cities-municipalities/`,
+      'Failed to load cities'
+    );
+    setCities(provinceCities);
+  };
+
+  const handleCityChange = async (e) => {
+    const code = e.target.value;
+    const city = cities.find(c => c.code === code) || null;
+    setSelectedCity(city);
+    setSelectedBarangay(null);
+    setBarangays([]);
+
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        city: city ? city.name : '',
+        cityCode: city?.code || '',
+        barangay: '',
+        barangayCode: ''
+      }
+    }));
+
+    if (!code) return;
+
+    const cityBarangays = await fetchCollection(
+      `/cities-municipalities/${code}/barangays/`,
+      'Failed to load barangays'
+    );
+    setBarangays(cityBarangays);
+  };
+
+  const handleBarangayChange = (e) => {
+    const code = e.target.value;
+    const barangay = barangays.find(b => b.code === code) || null;
+    setSelectedBarangay(barangay);
+
+    setFormData(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        barangay: barangay ? barangay.name : '',
+        barangayCode: barangay?.code || ''
+      }
+    }));
   };
 
   return (
@@ -276,30 +469,167 @@ export default function RiderRegisterPage() {
                   />
                 </div>
 
-                {/* City */}
-                <div>
-                  <input
-                    name="address.city"
-                    type="text"
-                    required
-                    value={formData.address.city}
-                    onChange={handleChange}
-                    placeholder="City"
-                    className={simpleInputClasses}
-                  />
+                {/* Region (custom dropdown) */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsRegionOpen(prev => !prev)}
+                    className={`${selectInputClasses} flex items-center justify-between`}
+                  >
+                    <span className="truncate">
+                      {selectedRegion?.name || 'Select Region'}
+                    </span>
+                    <span className="ml-2 text-xs text-white/80">
+                      {isRegionOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+                  {isRegionOpen && (
+                    <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-white/25 bg-red-50/90 text-sm shadow-xl backdrop-blur-md">
+                      {regions.map((region) => (
+                        <button
+                          key={region.code}
+                          type="button"
+                          onClick={() => {
+                            handleRegionChange({ target: { value: region.code } });
+                            setIsRegionOpen(false);
+                          }}
+                          className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                            selectedRegion?.code === region.code ? 'bg-red-100 font-semibold' : ''
+                          }`}
+                        >
+                          {region.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* State/Province */}
-                <div>
-                  <input
-                    name="address.state"
-                    type="text"
-                    required
-                    value={formData.address.state}
-                    onChange={handleChange}
-                    placeholder="State/Province"
-                    className={simpleInputClasses}
-                  />
+                {/* Province (custom dropdown) */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    disabled={!regionHasProvinces || !selectedRegion}
+                    onClick={() => {
+                      if (!regionHasProvinces || !selectedRegion) return;
+                      setIsProvinceOpen(prev => !prev);
+                    }}
+                    className={`${selectInputClasses} flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    <span className="truncate">
+                      {selectedProvince?.name ||
+                        (regionHasProvinces ? 'Select Province' : 'No provinces required')}
+                    </span>
+                    <span className="ml-2 text-xs text-white/80">
+                      {isProvinceOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+                  {isProvinceOpen && regionHasProvinces && selectedRegion && (
+                    <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-white/25 bg-red-50/90 text-sm shadow-xl backdrop-blur-md">
+                      {provinces.map((province) => (
+                        <button
+                          key={province.code}
+                          type="button"
+                          onClick={() => {
+                            handleProvinceChange({ target: { value: province.code } });
+                            setIsProvinceOpen(false);
+                          }}
+                          className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                            selectedProvince?.code === province.code ? 'bg-red-100 font-semibold' : ''
+                          }`}
+                        >
+                          {province.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* City / Municipality (custom dropdown) */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    disabled={
+                      !selectedRegion ||
+                      (regionHasProvinces && !selectedProvince) ||
+                      !cities.length
+                    }
+                    onClick={() => {
+                      if (
+                        !selectedRegion ||
+                        (regionHasProvinces && !selectedProvince) ||
+                        !cities.length
+                      ) {
+                        return;
+                      }
+                      setIsCityOpen(prev => !prev);
+                    }}
+                    className={`${selectInputClasses} flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    <span className="truncate">
+                      {selectedCity?.name || 'Select City / Municipality'}
+                    </span>
+                    <span className="ml-2 text-xs text-white/80">
+                      {isCityOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+                  {isCityOpen && (
+                    <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-white/25 bg-red-50/90 text-sm shadow-xl backdrop-blur-md">
+                      {cities.map((city) => (
+                        <button
+                          key={city.code}
+                          type="button"
+                          onClick={() => {
+                            handleCityChange({ target: { value: city.code } });
+                            setIsCityOpen(false);
+                          }}
+                          className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                            selectedCity?.code === city.code ? 'bg-red-100 font-semibold' : ''
+                          }`}
+                        >
+                          {city.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Barangay (custom dropdown) */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    disabled={!selectedCity || !barangays.length}
+                    onClick={() => {
+                      if (!selectedCity || !barangays.length) return;
+                      setIsBarangayOpen(prev => !prev);
+                    }}
+                    className={`${selectInputClasses} flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    <span className="truncate">
+                      {selectedBarangay?.name || 'Select Barangay'}
+                    </span>
+                    <span className="ml-2 text-xs text-white/80">
+                      {isBarangayOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+                  {isBarangayOpen && (
+                    <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-white/25 bg-red-50/90 text-sm shadow-xl backdrop-blur-md">
+                      {barangays.map((barangay) => (
+                        <button
+                          key={barangay.code}
+                          type="button"
+                          onClick={() => {
+                            handleBarangayChange({ target: { value: barangay.code } });
+                            setIsBarangayOpen(false);
+                          }}
+                          className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                            selectedBarangay?.code === barangay.code ? 'bg-red-100 font-semibold' : ''
+                          }`}
+                        >
+                          {barangay.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Postal Code */}
@@ -325,6 +655,7 @@ export default function RiderRegisterPage() {
                     onChange={handleChange}
                     placeholder="Country"
                     className={simpleInputClasses}
+                    readOnly
                   />
                 </div>
               </div>

@@ -12,7 +12,10 @@ export default function Profile() {
     phoneNumber: '',
     address: {
       street: '',
+      region: '',
+      province: '',
       city: '',
+      barangay: '',
       state: '',
       postalCode: '',
       country: '',
@@ -24,12 +27,49 @@ export default function Profile() {
     }
   });
   const [isEditing, setIsEditing] = useState(false);
+  const PSGC_BASE_URL = 'https://psgc.gitlab.io/api';
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [selectedProvince, setSelectedProvince] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedBarangay, setSelectedBarangay] = useState(null);
+  const [regionHasProvinces, setRegionHasProvinces] = useState(true);
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [isProvinceOpen, setIsProvinceOpen] = useState(false);
+  const [isCityOpen, setIsCityOpen] = useState(false);
+  const [isBarangayOpen, setIsBarangayOpen] = useState(false);
 
   useEffect(() => {
     if (user?.token) {
       fetchProfile();
     }
   }, [user]);
+
+  const fetchCollection = async (path, errorMessage) => {
+    try {
+      const response = await fetch(`${PSGC_BASE_URL}${path}`);
+      if (!response.ok) {
+        throw new Error(errorMessage);
+      }
+      const data = await response.json();
+      return Array.isArray(data) ? data.sort((a, b) => (a.name || '').localeCompare(b.name || '')) : [];
+    } catch (err) {
+      console.error(err);
+      toast.error(errorMessage);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const loadRegions = async () => {
+      const regionData = await fetchCollection('/regions/', 'Failed to load regions');
+      setRegions(regionData);
+    };
+    loadRegions();
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -54,7 +94,10 @@ export default function Profile() {
         phoneNumber: data.phoneNumber || '',
         address: {
           street: data.address?.street || '',
+          region: data.address?.region || '',
+          province: data.address?.province || '',
           city: data.address?.city || '',
+          barangay: data.address?.barangay || '',
           state: data.address?.state || '',
           postalCode: data.address?.postalCode || '',
           country: data.address?.country || '',
@@ -101,6 +144,114 @@ export default function Profile() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRegionSelect = async (code) => {
+    const region = regions.find(r => r.code === code) || null;
+    setSelectedRegion(region);
+    setSelectedProvince(null);
+    setSelectedCity(null);
+    setSelectedBarangay(null);
+    setProvinces([]);
+    setCities([]);
+    setBarangays([]);
+
+    setProfile(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        region: region ? region.regionName || region.name : '',
+        province: '',
+        city: '',
+        barangay: ''
+      }
+    }));
+
+    if (!code) {
+      setRegionHasProvinces(true);
+      return;
+    }
+
+    const provinceList = await fetchCollection(`/regions/${code}/provinces/`, 'Failed to load provinces');
+    setRegionHasProvinces(provinceList.length > 0);
+    setProvinces(provinceList);
+
+    if (provinceList.length === 0) {
+      const regionCities = await fetchCollection(`/regions/${code}/cities-municipalities/`, 'Failed to load cities');
+      setCities(regionCities);
+      setProfile(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          state: region ? region.name : prev.address.state,
+          province: region ? region.name : prev.address.province
+        }
+      }));
+    }
+  };
+
+  const handleProvinceSelect = async (code) => {
+    const province = provinces.find(p => p.code === code) || null;
+    setSelectedProvince(province);
+    setSelectedCity(null);
+    setSelectedBarangay(null);
+    setCities([]);
+    setBarangays([]);
+
+    setProfile(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        province: province ? province.name : '',
+        city: '',
+        barangay: ''
+      }
+    }));
+
+    if (!code) return;
+
+    const provinceCities = await fetchCollection(
+      `/provinces/${code}/cities-municipalities/`,
+      'Failed to load cities'
+    );
+    setCities(provinceCities);
+  };
+
+  const handleCitySelect = async (code) => {
+    const city = cities.find(c => c.code === code) || null;
+    setSelectedCity(city);
+    setSelectedBarangay(null);
+    setBarangays([]);
+
+    setProfile(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        city: city ? city.name : '',
+        barangay: ''
+      }
+    }));
+
+    if (!code) return;
+
+    const cityBarangays = await fetchCollection(
+      `/cities-municipalities/${code}/barangays/`,
+      'Failed to load barangays'
+    );
+    setBarangays(cityBarangays);
+  };
+
+  const handleBarangaySelect = (code) => {
+    const barangay = barangays.find(b => b.code === code) || null;
+    setSelectedBarangay(barangay);
+
+    setProfile(prev => ({
+      ...prev,
+      address: {
+        ...prev.address,
+        barangay: barangay ? barangay.name : ''
+      }
+    }));
   };
 
   const testGeocoding = async () => {
@@ -187,21 +338,183 @@ export default function Profile() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">City</label>
-                <input
-                  type="text"
-                  value={profile.address?.city || ''}
-                  onChange={(e) => setProfile({
-                    ...profile,
-                    address: { ...profile.address, city: e.target.value }
-                  })}
-                  className="w-full p-2 border rounded"
+              {/* Region dropdown */}
+              <div className="relative">
+                <label className="block text-sm font-medium mb-1">Region</label>
+                <button
+                  type="button"
                   disabled={loading}
-                />
+                  onClick={() => setIsRegionOpen(prev => !prev)}
+                  className="w-full p-2 border rounded flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60 bg-white"
+                >
+                  <span className="truncate">
+                    {selectedRegion?.name || profile.address?.region || 'Select Region'}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {isRegionOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+                {isRegionOpen && (
+                  <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-red-50/90 text-sm shadow-lg">
+                    {regions.map((region) => (
+                      <button
+                        key={region.code}
+                        type="button"
+                        onClick={() => {
+                          handleRegionSelect(region.code);
+                          setIsRegionOpen(false);
+                        }}
+                        className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                          selectedRegion?.code === region.code ? 'bg-red-100 font-semibold' : ''
+                        }`}
+                      >
+                        {region.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {/* Province dropdown */}
+              <div className="relative">
+                <label className="block text-sm font-medium mb-1">Province</label>
+                <button
+                  type="button"
+                  disabled={loading || !regionHasProvinces || !selectedRegion}
+                  onClick={() => {
+                    if (loading || !regionHasProvinces || !selectedRegion) return;
+                    setIsProvinceOpen(prev => !prev);
+                  }}
+                  className="w-full p-2 border rounded flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60 bg-white"
+                >
+                  <span className="truncate">
+                    {selectedProvince?.name ||
+                      profile.address?.province ||
+                      (regionHasProvinces ? 'Select Province' : 'No provinces required')}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {isProvinceOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+                {isProvinceOpen && regionHasProvinces && selectedRegion && (
+                  <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-red-50/90 text-sm shadow-lg">
+                    {provinces.map((province) => (
+                      <button
+                        key={province.code}
+                        type="button"
+                        onClick={() => {
+                          handleProvinceSelect(province.code);
+                          setIsProvinceOpen(false);
+                        }}
+                        className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                          selectedProvince?.code === province.code ? 'bg-red-100 font-semibold' : ''
+                        }`}
+                      >
+                        {province.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* City dropdown */}
+              <div className="relative">
+                <label className="block text-sm font-medium mb-1">City / Municipality</label>
+                <button
+                  type="button"
+                  disabled={
+                    loading ||
+                    !selectedRegion ||
+                    (regionHasProvinces && !selectedProvince) ||
+                    !cities.length
+                  }
+                  onClick={() => {
+                    if (
+                      loading ||
+                      !selectedRegion ||
+                      (regionHasProvinces && !selectedProvince) ||
+                      !cities.length
+                    ) {
+                      return;
+                    }
+                    setIsCityOpen(prev => !prev);
+                  }}
+                  className="w-full p-2 border rounded flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60 bg-white"
+                >
+                  <span className="truncate">
+                    {selectedCity?.name || profile.address?.city || 'Select City / Municipality'}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {isCityOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+                {isCityOpen && (
+                  <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-red-50/90 text-sm shadow-lg">
+                    {cities.map((city) => (
+                      <button
+                        key={city.code}
+                        type="button"
+                        onClick={() => {
+                          handleCitySelect(city.code);
+                          setIsCityOpen(false);
+                        }}
+                        className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                          selectedCity?.code === city.code ? 'bg-red-100 font-semibold' : ''
+                        }`}
+                      >
+                        {city.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Barangay dropdown */}
+              <div className="relative">
+                <label className="block text-sm font-medium mb-1">Barangay</label>
+                <button
+                  type="button"
+                  disabled={loading || !selectedCity || !barangays.length}
+                  onClick={() => {
+                    if (loading || !selectedCity || !barangays.length) return;
+                    setIsBarangayOpen(prev => !prev);
+                  }}
+                  className="w-full p-2 border rounded flex items-center justify-between disabled:cursor-not-allowed disabled:opacity-60 bg-white"
+                >
+                  <span className="truncate">
+                    {selectedBarangay?.name || profile.address?.barangay || 'Select Barangay'}
+                  </span>
+                  <span className="ml-2 text-xs text-gray-600">
+                    {isBarangayOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+                {isBarangayOpen && (
+                  <div className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-red-50/90 text-sm shadow-lg">
+                    {barangays.map((barangay) => (
+                      <button
+                        key={barangay.code}
+                        type="button"
+                        onClick={() => {
+                          handleBarangaySelect(barangay.code);
+                          setIsBarangayOpen(false);
+                        }}
+                        className={`flex w-full items-center px-3 py-2 text-left text-gray-900 hover:bg-red-100 ${
+                          selectedBarangay?.code === barangay.code ? 'bg-red-100 font-semibold' : ''
+                        }`}
+                      >
+                        {barangay.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">State/Province</label>
+                <label className="block text-sm font-medium mb-1">State / Province (Legacy)</label>
                 <input
                   type="text"
                   value={profile.address?.state || ''}
@@ -213,9 +526,6 @@ export default function Profile() {
                   disabled={loading}
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Postal Code</label>
                 <input
@@ -229,19 +539,20 @@ export default function Profile() {
                   disabled={loading}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Country</label>
-                <input
-                  type="text"
-                  value={profile.address?.country || ''}
-                  onChange={(e) => setProfile({
-                    ...profile,
-                    address: { ...profile.address, country: e.target.value }
-                  })}
-                  className="w-full p-2 border rounded"
-                  disabled={loading}
-                />
-              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Country</label>
+              <input
+                type="text"
+                value={profile.address?.country || ''}
+                onChange={(e) => setProfile({
+                  ...profile,
+                  address: { ...profile.address, country: e.target.value }
+                })}
+                className="w-full p-2 border rounded"
+                disabled={loading}
+              />
             </div>
           </div>
 

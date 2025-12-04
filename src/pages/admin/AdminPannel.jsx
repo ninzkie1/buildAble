@@ -51,7 +51,10 @@ export default function AdminPanel() {
     role: 'user',
     phoneNumber: '',
     street: '',
+    region: '',
+    province: '',
     city: '',
+    barangay: '',
     state: '',
     postalCode: '',
     country: ''
@@ -109,9 +112,12 @@ export default function AdminPanel() {
         password: formData.password,
         role: formData.role,
         phoneNumber: formData.phoneNumber || undefined,
-        address: (formData.street && formData.city) ? {
+        address: (formData.street && (formData.city || formData.barangay || formData.region)) ? {
           street: formData.street,
+          region: formData.region,
+          province: formData.province,
           city: formData.city,
+          barangay: formData.barangay,
           state: formData.state,
           postalCode: formData.postalCode,
           country: formData.country
@@ -175,10 +181,13 @@ export default function AdminPanel() {
         updateData.password = formData.password;
       }
 
-      if (formData.street && formData.city) {
+      if (formData.street && (formData.city || formData.barangay || formData.region)) {
         updateData.address = {
           street: formData.street,
+          region: formData.region,
+          province: formData.province,
           city: formData.city,
+          barangay: formData.barangay,
           state: formData.state,
           postalCode: formData.postalCode,
           country: formData.country
@@ -278,7 +287,10 @@ export default function AdminPanel() {
       role: 'user',
       phoneNumber: '',
       street: '',
+      region: '',
+      province: '',
       city: '',
+      barangay: '',
       state: '',
       postalCode: '',
       country: ''
@@ -299,7 +311,10 @@ export default function AdminPanel() {
       role: user.role || 'user',
       phoneNumber: user.phoneNumber || '',
       street: user.address?.street || '',
+      region: user.address?.region || '',
+      province: user.address?.province || '',
       city: user.address?.city || '',
+      barangay: user.address?.barangay || '',
       state: user.address?.state || '',
       postalCode: user.address?.postalCode || '',
       country: user.address?.country || ''
@@ -662,6 +677,117 @@ export default function AdminPanel() {
 
 // User Modal Component
 function UserModal({ title, formData, setFormData, onSubmit, onClose, loading, isEdit = false, user }) {
+  const PSGC_BASE_URL = 'https://psgc.gitlab.io/api';
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [selectedRegionCode, setSelectedRegionCode] = useState('');
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState('');
+  const [selectedCityCode, setSelectedCityCode] = useState('');
+
+  const fetchCollection = async (path, errorMessage) => {
+    try {
+      const response = await fetch(`${PSGC_BASE_URL}${path}`);
+      if (!response.ok) throw new Error(errorMessage);
+      const data = await response.json();
+      return Array.isArray(data)
+        ? data.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        : [];
+    } catch (err) {
+      console.error(err);
+      toast.error(errorMessage);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const loadRegions = async () => {
+      const regionData = await fetchCollection('/regions/', 'Failed to load regions');
+      setRegions(regionData);
+    };
+    loadRegions();
+  }, []);
+
+  const handleRegionChange = async (code) => {
+    setSelectedRegionCode(code);
+    setSelectedProvinceCode('');
+    setSelectedCityCode('');
+    setProvinces([]);
+    setCities([]);
+    setBarangays([]);
+
+    const region = regions.find(r => r.code === code) || null;
+    setFormData(prev => ({
+      ...prev,
+      region: region ? region.regionName || region.name : '',
+      province: '',
+      city: '',
+      barangay: ''
+    }));
+
+    if (!code) return;
+    const provinceList = await fetchCollection(`/regions/${code}/provinces/`, 'Failed to load provinces');
+    setProvinces(provinceList);
+
+    if (provinceList.length === 0) {
+      const regionCities = await fetchCollection(
+        `/regions/${code}/cities-municipalities/`,
+        'Failed to load cities'
+      );
+      setCities(regionCities);
+    }
+  };
+
+  const handleProvinceChange = async (code) => {
+    setSelectedProvinceCode(code);
+    setSelectedCityCode('');
+    setCities([]);
+    setBarangays([]);
+
+    const province = provinces.find(p => p.code === code) || null;
+    setFormData(prev => ({
+      ...prev,
+      province: province ? province.name : '',
+      city: '',
+      barangay: ''
+    }));
+
+    if (!code) return;
+    const provinceCities = await fetchCollection(
+      `/provinces/${code}/cities-municipalities/`,
+      'Failed to load cities'
+    );
+    setCities(provinceCities);
+  };
+
+  const handleCityChange = async (code) => {
+    setSelectedCityCode(code);
+    setBarangays([]);
+
+    const city = cities.find(c => c.code === code) || null;
+    setFormData(prev => ({
+      ...prev,
+      city: city ? city.name : '',
+      barangay: ''
+    }));
+
+    if (!code) return;
+    const cityBarangays = await fetchCollection(
+      `/cities-municipalities/${code}/barangays/`,
+      'Failed to load barangays'
+    );
+    setBarangays(cityBarangays);
+  };
+
+  const handleBarangayChange = (code) => {
+    const barangay = barangays.find(b => b.code === code) || null;
+    setFormData(prev => ({
+      ...prev,
+      barangay: barangay ? barangay.name : ''
+    }));
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -758,13 +884,67 @@ function UserModal({ title, formData, setFormData, onSubmit, onClose, loading, i
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Region</label>
+                <select
+                  value={selectedRegionCode}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B84937] focus:border-transparent bg-white"
+                >
+                  <option value="">{formData.region || 'Select Region'}</option>
+                  {regions.map(region => (
+                    <option key={region.code} value={region.code}>
+                      {region.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Province</label>
+                <select
+                  value={selectedProvinceCode}
+                  onChange={(e) => handleProvinceChange(e.target.value)}
+                  disabled={!regions.length || (!provinces.length && !selectedRegionCode)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B84937] focus:border-transparent bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <option value="">{formData.province || 'Select Province'}</option>
+                  {provinces.map(province => (
+                    <option key={province.code} value={province.code}>
+                      {province.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                <input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B84937] focus:border-transparent"
-                />
+                <select
+                  value={selectedCityCode}
+                  onChange={(e) => handleCityChange(e.target.value)}
+                  disabled={!cities.length}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B84937] focus:border-transparent bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <option value="">{formData.city || 'Select City / Municipality'}</option>
+                  {cities.map(city => (
+                    <option key={city.code} value={city.code}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Barangay</label>
+                <select
+                  value={formData.barangay}
+                  onChange={(e) => handleBarangayChange(e.target.value)}
+                  disabled={!barangays.length}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B84937] focus:border-transparent bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <option value="">{formData.barangay || 'Select Barangay'}</option>
+                  {barangays.map(barangay => (
+                    <option key={barangay.code} value={barangay.code}>
+                      {barangay.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
@@ -906,7 +1086,16 @@ function ViewUserModal({ user, onClose }) {
               </h4>
               <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                 <p className="text-gray-900"><strong>Street:</strong> {user.address.street}</p>
+                {user.address.region && (
+                  <p className="text-gray-900"><strong>Region:</strong> {user.address.region}</p>
+                )}
+                {user.address.province && (
+                  <p className="text-gray-900"><strong>Province:</strong> {user.address.province}</p>
+                )}
                 <p className="text-gray-900"><strong>City:</strong> {user.address.city}</p>
+                {user.address.barangay && (
+                  <p className="text-gray-900"><strong>Barangay:</strong> {user.address.barangay}</p>
+                )}
                 <p className="text-gray-900"><strong>State:</strong> {user.address.state}</p>
                 <p className="text-gray-900"><strong>Postal Code:</strong> {user.address.postalCode}</p>
                 <p className="text-gray-900"><strong>Country:</strong> {user.address.country}</p>

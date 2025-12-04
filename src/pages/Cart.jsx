@@ -261,7 +261,10 @@ export default function Cart() {
             })),
             address: {
               street: address.street,
+              region: address.region,
+              province: address.province,
               city: address.city,
+              barangay: address.barangay,
               state: address.state,
               postalCode: address.postalCode,
               country: address.country

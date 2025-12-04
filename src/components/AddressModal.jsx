@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 export default function AddressModal({ isOpen, onClose, onSave, loading }) {
   const [address, setAddress] = useState({
     street: '',
+    region: '',
+    province: '',
     city: '',
+    barangay: '',
     state: '',
     postalCode: '',
     country: ''
@@ -35,7 +38,28 @@ export default function AddressModal({ isOpen, onClose, onSave, loading }) {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">City</label>
+                <label className="block text-sm font-medium mb-1">Region</label>
+                <input
+                  type="text"
+                  value={address.region}
+                  onChange={(e) => setAddress({ ...address, region: e.target.value })}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Province</label>
+                <input
+                  type="text"
+                  value={address.province}
+                  onChange={(e) => setAddress({ ...address, province: e.target.value })}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">City / Municipality</label>
                 <input
                   type="text"
                   required
@@ -45,7 +69,19 @@ export default function AddressModal({ isOpen, onClose, onSave, loading }) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">State</label>
+                <label className="block text-sm font-medium mb-1">Barangay</label>
+                <input
+                  type="text"
+                  value={address.barangay}
+                  onChange={(e) => setAddress({ ...address, barangay: e.target.value })}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">State / Province (Legacy)</label>
                 <input
                   type="text"
                   required
@@ -54,9 +90,6 @@ export default function AddressModal({ isOpen, onClose, onSave, loading }) {
                   className="w-full p-2 border rounded"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Postal Code</label>
                 <input
@@ -67,16 +100,17 @@ export default function AddressModal({ isOpen, onClose, onSave, loading }) {
                   className="w-full p-2 border rounded"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Country</label>
-                <input
-                  type="text"
-                  required
-                  value={address.country}
-                  onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Country</label>
+              <input
+                type="text"
+                required
+                value={address.country}
+                onChange={(e) => setAddress({ ...address, country: e.target.value })}
+                className="w-full p-2 border rounded"
+              />
             </div>
           </div>
 
