@@ -191,11 +191,11 @@ export default function SellerHome() {
     const sortedWithdrawalRequests = [...withdrawalRequests].sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="flex justify-between items-center mb-8">
+        <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 md:mb-8">
                 <h1 className="text-2xl font-bold text-gray-800">Seller Dashboard</h1>
-                <div className="flex gap-4 items-center">
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full md:w-auto">
+                    <div className="bg-white p-4 rounded-lg shadow-sm flex-1 sm:flex-none">
                         <div className="flex items-center gap-2">
                             <Wallet className="text-blue-500" />
                             <div>
@@ -207,7 +207,7 @@ export default function SellerHome() {
                     <button
                         onClick={() => setShowWithdrawalModal(true)}
                         disabled={availableBalance <= 0}
-                        className="bg-[#B84937] text-white px-6 py-2 rounded-lg hover:bg-[#9a3d2e] disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                        className="bg-[#B84937] text-white px-6 py-2 rounded-lg hover:bg-[#9a3d2e] disabled:bg-gray-400 disabled:cursor-not-allowed transition w-full sm:w-auto"
                     >
                         Request Withdrawal
                     </button>
@@ -217,7 +217,7 @@ export default function SellerHome() {
             {/* Daily Statistics Cards */}
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Today's Statistics</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                     <StatCard 
                         title="Today's Revenue"
                         value={`₱${dailyStatistics.revenue?.toFixed(2) || '0.00'}`}
@@ -248,7 +248,7 @@ export default function SellerHome() {
             {/* Monthly Statistics Cards */}
             <div className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Monthly Statistics</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                 <StatCard 
                     title="Monthly Revenue"
                     value={`₱${statistics.revenue.toFixed(2)}`}

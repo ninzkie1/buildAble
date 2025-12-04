@@ -122,7 +122,7 @@ export default function OrderDetails() {
             </div>
             <div className="text-right">
               <p className="font-medium text-lg">
-                Total: ${order.totalAmount.toFixed(2)}
+                Total: ₱{order.totalAmount.toFixed(2)}
               </p>
               <p className={`text-sm ${
                 order.status === 'completed' ? 'text-green-600' :
@@ -155,7 +155,7 @@ export default function OrderDetails() {
                   <div>
                     <p className="font-medium">{item.product.name}</p>
                     <p className="text-sm text-gray-500">
-                      Quantity: {item.quantity} × ${item.product.price.toFixed(2)}
+                      Quantity: {item.quantity} × ₱{item.product.price.toFixed(2)}
                     </p>
                   </div>
                 </div>

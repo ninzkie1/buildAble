@@ -7,7 +7,7 @@ import config from '../config/config';
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
-  const { clearCart } = useCart();
+  const { removeMultipleFromCart } = useCart();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [verifying, setVerifying] = useState(true);
@@ -40,7 +40,20 @@ export default function PaymentSuccess() {
       }
 
       setVerified(true);
-      clearCart();
+      
+      // Only remove the items that were checked out, not the entire cart
+      const checkedOutProductIds = localStorage.getItem('checkedOutProductIds');
+      if (checkedOutProductIds) {
+        try {
+          const productIds = JSON.parse(checkedOutProductIds);
+          // Remove only the checked out items (as a safety measure in case they weren't removed before redirect)
+          await removeMultipleFromCart(productIds);
+        } catch (error) {
+          console.error('Error removing checked out items:', error);
+        }
+        localStorage.removeItem('checkedOutProductIds');
+      }
+      
       localStorage.removeItem('pendingOrderId');
       
       if (!toastShown) {
@@ -68,7 +81,7 @@ export default function PaymentSuccess() {
     } finally {
       setVerifying(false);
     }
-  }, [user, navigate, clearCart, searchParams, verified, toastShown]);
+  }, [user, navigate, removeMultipleFromCart, searchParams, verified, toastShown]);
 
   useEffect(() => {
     if (!user) {

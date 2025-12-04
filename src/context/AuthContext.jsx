@@ -27,6 +27,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem(`cart_${token}`);
     }
     
+    // Clear guest cart on logout (user can start fresh)
+    localStorage.removeItem('guestCart');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);

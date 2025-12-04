@@ -138,6 +138,9 @@ export default function LoginPage() {
         case "admin":
           navigate("/adminPanel");
           break;
+        case "rider":
+          navigate("/rider/dashboard");
+          break;
         default:
           navigate("/");
       }
@@ -292,6 +295,9 @@ export default function LoginPage() {
           break;
         case "admin":
           navigate("/adminPanel");
+          break;
+        case "rider":
+          navigate("/rider/dashboard");
           break;
         case "user":
         default:

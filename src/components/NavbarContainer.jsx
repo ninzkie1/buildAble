@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import UserNavbar from "./UserNavbar";
 import SellerNavbar from "./SellerNavbar";
 import AdminNavbar from "./AdminNavbar";
+import RiderNavbar from "./RiderNavbar";
 import { useLocation } from "react-router-dom";
 
 function NavbarContainer() {
@@ -37,6 +38,13 @@ function NavbarContainer() {
         <>
           <SellerNavbar />
           {/* Floating cart only for users, not sellers */}
+        </>
+      );
+    case 'rider':
+      return (
+        <>
+          <RiderNavbar />
+          {/* No floating cart for riders */}
         </>
       );
     case 'user':

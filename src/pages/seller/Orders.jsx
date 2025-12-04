@@ -212,7 +212,7 @@ export default function SellerOrders() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Customer</p>
-                <p className="font-medium">{order.user.name}</p>
+                <p className="font-medium">{order.user?.name || 'Customer'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Date</p>
@@ -306,7 +306,7 @@ export default function SellerOrders() {
             {/* Chat Button */}
             <div className="mt-4">
               <button
-                onClick={() => handleStartChat(order.user._id, order._id)}
+                onClick={() => order.user && handleStartChat(order.user._id, order._id)}
                 className="px-4 py-2 text-sm bg-green-500 text-white hover:bg-green-600 rounded-lg transition flex items-center gap-2"
               >
                 <MessageCircle size={16} />

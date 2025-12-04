@@ -146,6 +146,7 @@ import WithdrawalHistory from "./pages/admin/WithdrawalHistory";
 import UserHome from "./pages/user/UserHome";
 import SellerHome from "./pages/seller/SellerDashboard";
 import SellerCustomers from "./pages/seller/SellerCustomers";
+import DeliveryRiderDashboard from "./pages/seller/DeliveryRiderDashboard";
 import OrderHistory from "./pages/user/OrderHistory";
 import OrderDetails from './pages/user/OrderDetails';
 import ProductDetails from './pages/ProductDetails';
@@ -166,6 +167,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import SelectRole from "./pages/SelectRole";
 import SellerRegister from "./pages/SellerRegister";
+import RiderRegister from "./pages/RiderRegister";
+import RiderLogin from "./pages/RiderLogin";
 
 export const router = createBrowserRouter([
   {
@@ -185,6 +188,8 @@ export const router = createBrowserRouter([
       { path: "login", element: <LoginPage /> },
       { path: "register", element: <Register /> },
       { path: "seller/register", element: <SellerRegister /> },
+      { path: "rider/register", element: <RiderRegister /> },
+      { path: "rider/login", element: <RiderLogin /> },
       
       { 
         path: "cart", 
@@ -213,6 +218,10 @@ export const router = createBrowserRouter([
       { 
         path: "sellerHome", 
         element: <ProtectedRoute><SellerHome /></ProtectedRoute> 
+      },
+      {
+        path: "/rider/dashboard",
+        element: <ProtectedRoute><DeliveryRiderDashboard /></ProtectedRoute>
       },
       {
         path: "/seller/customers",

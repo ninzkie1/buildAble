@@ -51,6 +51,6 @@ try {
 
 
 
-//for production 
+
 
 export default config;
