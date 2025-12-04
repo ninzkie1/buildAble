@@ -35,6 +35,11 @@ export default function RiderRegisterPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const baseInputClasses =
+    'w-full rounded-lg border border-white/30 bg-white/20 text-sm text-white placeholder-gray-300 transition duration-200 focus:border-yellow-300 focus:ring-2 focus:ring-yellow-300 focus:ring-offset-0 sm:text-base';
+  const iconInputClasses = `${baseInputClasses} pl-10 pr-3 py-2.5 sm:py-3`;
+  const iconInputWithToggleClasses = `${baseInputClasses} pl-10 pr-10 py-2.5 sm:py-3`;
+  const simpleInputClasses = `${baseInputClasses} px-3 py-2.5 sm:py-3`;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -135,37 +140,36 @@ export default function RiderRegisterPage() {
   };
 
   return (
-    <div className="absolute inset-0 w-full min-h-screen overflow-hidden">
+    <div className="relative w-full min-h-screen overflow-y-auto bg-black">
       {/* Background Image */}
       <div
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/bg-login.jpg')",
-        }}
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-300 sm:scale-105 lg:scale-100"
+        style={{ backgroundImage: "url('/bg-login.jpg')" }}
       />
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#B84937]/90 to-[#7A2B22]/90" />
+      <div className="pointer-events-none fixed inset-0 h-full w-full bg-gradient-to-r from-[#B84937]/95 via-[#8C362C]/90 to-[#7A2B22]/85" />
 
       {/* Content Container */}
-      <div className="relative z-10 w-full min-h-screen flex items-center justify-center px-4 py-8 overflow-y-auto">
-        <div className="w-full max-w-2xl bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 my-8">
-          <div className="flex flex-col items-center mb-6">
-            <img src="/logo.png" alt="BuildAble Logo" className="h-16 mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-1">
+      <div className="relative z-10 flex w-full min-h-screen flex-col items-center justify-center px-3 py-6 sm:px-6 sm:py-10 lg:px-10 lg:py-14">
+        <div className="w-full max-w-full rounded-2xl border border-white/15 bg-white/10 p-4 shadow-2xl backdrop-blur-xl sm:max-w-2xl sm:rounded-3xl sm:p-6 lg:p-8">
+          <div className="mb-5 flex flex-col items-center text-center sm:mb-6">
+            <img src="/logo.png" alt="BuildAble Logo" className="mb-4 h-12 sm:h-14 md:h-16" />
+            <h2 className="mb-1 text-base font-bold text-white sm:text-2xl">
               Register as Delivery Rider
             </h2>
-            <p className="text-white/80 text-sm">Complete your profile to start delivering</p>
+            <p className="text-xs text-white/80 sm:text-base">Complete your profile to start delivering</p>
           </div>
 
           {error && (
-            <div className="bg-red-50/90 border-l-4 border-red-500 p-4 my-4 rounded">
-              <p className="text-red-700">{error}</p>
+            <div className="my-4 rounded border-l-4 border-red-500 bg-red-50/90 p-4 text-sm text-red-700 sm:text-base">
+              {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-4 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-4 sm:space-y-5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
               {/* Name field */}
               <div className="relative flex items-center">
                 <User className="absolute left-3 h-5 w-5 text-gray-300" />
@@ -176,7 +180,7 @@ export default function RiderRegisterPage() {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Full Name"
-                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                  className={iconInputClasses}
                 />
               </div>
 
@@ -190,7 +194,7 @@ export default function RiderRegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email Address"
-                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                  className={iconInputClasses}
                 />
               </div>
 
@@ -204,7 +208,7 @@ export default function RiderRegisterPage() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   placeholder="Phone Number"
-                  className="w-full pl-10 pr-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                  className={iconInputClasses}
                 />
               </div>
 
@@ -218,7 +222,7 @@ export default function RiderRegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Password"
-                  className="w-full pl-10 pr-10 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                  className={iconInputWithToggleClasses}
                 />
                 <button
                   type="button"
@@ -239,7 +243,7 @@ export default function RiderRegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Confirm Password"
-                  className="w-full pl-10 pr-10 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                  className={iconInputWithToggleClasses}
                 />
                 <button
                   type="button"
@@ -253,12 +257,12 @@ export default function RiderRegisterPage() {
 
             {/* Address Section */}
             <div className="border-t border-white/30 pt-4">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="mb-3 flex items-center gap-2 sm:mb-4">
                 <MapPin className="h-5 w-5 text-yellow-300" />
-                <h3 className="text-lg font-semibold text-white">Address</h3>
+                <h3 className="text-sm font-semibold text-white sm:text-lg">Address</h3>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
                 {/* Street */}
                 <div className="md:col-span-2">
                   <input
@@ -268,7 +272,7 @@ export default function RiderRegisterPage() {
                     value={formData.address.street}
                     onChange={handleChange}
                     placeholder="Street Address"
-                    className="w-full px-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                    className={simpleInputClasses}
                   />
                 </div>
 
@@ -281,7 +285,7 @@ export default function RiderRegisterPage() {
                     value={formData.address.city}
                     onChange={handleChange}
                     placeholder="City"
-                    className="w-full px-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                    className={simpleInputClasses}
                   />
                 </div>
 
@@ -294,7 +298,7 @@ export default function RiderRegisterPage() {
                     value={formData.address.state}
                     onChange={handleChange}
                     placeholder="State/Province"
-                    className="w-full px-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                    className={simpleInputClasses}
                   />
                 </div>
 
@@ -307,7 +311,7 @@ export default function RiderRegisterPage() {
                     value={formData.address.postalCode}
                     onChange={handleChange}
                     placeholder="Postal Code"
-                    className="w-full px-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                    className={simpleInputClasses}
                   />
                 </div>
 
@@ -320,7 +324,7 @@ export default function RiderRegisterPage() {
                     value={formData.address.country}
                     onChange={handleChange}
                     placeholder="Country"
-                    className="w-full px-3 py-3 bg-white/20 text-white placeholder-gray-300 border border-white/30 rounded-lg focus:ring-yellow-300 focus:border-yellow-300"
+                    className={simpleInputClasses}
                   />
                 </div>
               </div>
@@ -330,7 +334,7 @@ export default function RiderRegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all duration-200 disabled:opacity-50"
+              className="flex w-full min-h-[48px] items-center justify-center rounded-xl border border-transparent bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[52px] sm:text-base"
             >
               {isLoading ? (
                 <>
@@ -345,7 +349,7 @@ export default function RiderRegisterPage() {
               )}
             </button>
 
-            <p className="text-white/90 text-center">
+            <p className="text-center text-sm text-white/90 sm:text-base">
               Already have an account?{' '}
               <Link to="/rider/login" className="text-yellow-400 hover:text-yellow-300 font-medium">
                 Sign in
@@ -357,4 +361,6 @@ export default function RiderRegisterPage() {
     </div>
   );
 }
+
+
 
